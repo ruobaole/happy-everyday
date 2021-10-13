@@ -1,2 +1,3 @@
 # happy-everyday
-one coding problem a day, keep the doctor away
+
+one coding problem 🍟 a day, keep the doctor away!

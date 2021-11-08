@@ -24,24 +24,56 @@
 //
 // Time: O(N) - each element is inspected only twice, one by pointer l, one by point r
 
+// export const smallestSubarrayWithGivenSum = (
+//   arr: number[],
+//   s: number
+// ): number => {
+//   let l = 0
+//   let r = 0
+//   let sum = 0
+//   let minLen = Infinity
+//   while (r < arr.length) {
+//     while (r < arr.length && sum < s) {
+//       sum += arr[r]
+//       r += 1
+//     }
+//     while (sum >= s) {
+//       sum -= arr[l]
+//       l += 1
+//     }
+//     minLen = Math.min(minLen, r - l + 1)
+//   }
+//   return minLen === Infinity ? 0 : minLen
+// }
+
+// review practice //
+
+// 1. move right rightwards one by each step
+//   aggregatedly calculate sum
+//   if sum >= S -> subarray valid -> try to find smaller subarrays ending at right by shrinking the window
+// 2. shrink - move left until sum < S
+//   update sum -= arr[left]
+//   update minLen = right - left + 1 each time
+//   when sum < S, move right
+//
+// Time: O(N)
+
 export const smallestSubarrayWithGivenSum = (
   arr: number[],
   s: number
 ): number => {
-  let l = 0
-  let r = 0
+  let left = 0
+  let right = 0
   let sum = 0
   let minLen = Infinity
-  while (r < arr.length) {
-    while (r < arr.length && sum < s) {
-      sum += arr[r]
-      r += 1
-    }
+  for (right = 0; right < arr.length; right += 1) {
+    sum += arr[right]
     while (sum >= s) {
-      sum -= arr[l]
-      l += 1
+      // shrink
+      minLen = Math.min(minLen, right - left + 1)
+      sum -= arr[left]
+      left += 1
     }
-    minLen = Math.min(minLen, r - l + 1)
   }
-  return minLen === Infinity ? 0 : minLen
+  return minLen
 }

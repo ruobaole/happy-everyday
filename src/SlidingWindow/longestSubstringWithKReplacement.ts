@@ -18,6 +18,56 @@
 // Time: O(N) - each char is examined only twice, and the examination (all these hashmap and updating
 //    mostFreq take only O(1))
 
+// export const longestSubstringWithKReplacements = (
+//   str: string,
+//   k: number
+// ): number => {
+//   const charFreq: Record<string, number> = {}
+//   let maxFreq = 0
+//   let l = 0
+//   let r = 0
+//   let maxLen = 0
+//   for (r = 0; r < str.length; r += 1) {
+//     const rightC = str[r]
+//     if (charFreq[rightC] === undefined) {
+//       charFreq[rightC] = 0
+//     }
+//     charFreq[rightC] += 1
+//     maxFreq = Math.max(maxFreq, charFreq[rightC])
+//     while (r - l + 1 - maxFreq > k) {
+//       // substring is invalid, move l to shrink the window
+//       const leftC = str[l]
+//       charFreq[leftC] -= 1
+//       if (charFreq[leftC] === 0) {
+//         delete charFreq[leftC]
+//       }
+//       // we don't need to update maxFreq actually
+//       l += 1
+//     }
+//     maxLen = Math.max(maxLen, r - l + 1)
+//   }
+//   return maxLen
+// }
+
+// review practices //
+
+// Use a hashmap charFreq{} to record the chars and their frequencies within the subarray.
+// We also need to record the frequency of the most frequent char within the subarray (we don't actually
+//   care which char is the most frequent one)
+// We know the subarray is valid when windowSize - maxFreq <= k
+// Every time, don't forget to update the both records
+// 1. move right rightwards, 1 by each step
+//   charFreq[rightC] += 1
+//   maxFreq = max(maxFreq, charFreq[rightC])
+//   if the subarray is invalid, move left until the subarray is again valid
+// 2. how to move left? -- rightwards while updating charFreq{} and maxFreq
+//   charFreq[leftC] -= 1
+//   maxFreq = max(maxFreq, charFreq[leftC])
+//   break until the subarray is valid
+// 3. Once valid -- update maxLen
+//
+// Time: O(N)
+
 export const longestSubstringWithKReplacements = (
   str: string,
   k: number
@@ -35,13 +85,9 @@ export const longestSubstringWithKReplacements = (
     charFreq[rightC] += 1
     maxFreq = Math.max(maxFreq, charFreq[rightC])
     while (r - l + 1 - maxFreq > k) {
-      // substring is invalid, move l to shrink the window
       const leftC = str[l]
       charFreq[leftC] -= 1
-      if (charFreq[leftC] === 0) {
-        delete charFreq[leftC]
-      }
-      // we don't need to update maxFreq actually
+      maxFreq = Math.max(maxFreq, charFreq[leftC])
       l += 1
     }
     maxLen = Math.max(maxLen, r - l + 1)

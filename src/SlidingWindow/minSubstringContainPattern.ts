@@ -23,44 +23,113 @@
 //
 // Time: O(N+K)
 
+// export const findSmallestSubstringContaining = (
+//   str: string,
+//   pattern: string
+// ): string => {
+//   const charFreq: Record<string, number> = {}
+//   let numMatched = 0
+//   let l = 0
+//   let r = 0
+//   let resL = 0
+//   let resR = -1
+//   // init charFreq
+//   for (let i = 0; i < pattern.length; i += 1) {
+//     if (charFreq[pattern[i]] === undefined) {
+//       charFreq[pattern[i]] = 0
+//     }
+//     charFreq[pattern[i]] += 1
+//   }
+//   for (r = 0; r < str.length; r += 1) {
+//     const rightC = str[r]
+//     if (charFreq[rightC] !== undefined) {
+//       charFreq[rightC] -= 1
+//     }
+//     if (charFreq[rightC] === 0) {
+//       numMatched += 1
+//     }
+//     while (numMatched === pattern.length) {
+//       if (r - l + 1 < resR - resL + 1 || resR === -1) {
+//         resL = l
+//         resR = r
+//       }
+//       // shrink
+//       const leftC = str[l]
+//       if (charFreq[leftC] !== undefined) {
+//         // we don't care those chars not in the pattern
+//         charFreq[leftC] += 1
+//       }
+//       if (charFreq[leftC] === 1) {
+//         numMatched -= 1
+//       }
+//       l += 1
+//     }
+//   }
+//   return str.slice(resL, resR + 1)
+// }
+
+// review practices //
+
+// Use a hashmap toMatch{} to record chars within the pattern and their frequencies.
+// We also need a number matchedCnt to record the number of chars in the pattern we have already matched
+// Each time a char enters the window:
+//  - if it exists in toMatch: toMatch -= 1
+//  - if it does not exists in toMatch: ignore it (cause we don't care chars other than those in the
+//    pattern)
+// Because the substring we are looking for is valid as long as it contains what in the pattern,
+//  we first slide right to find a valid substring, and shrink in trying to find smaller ones.
+// (if the larger substring is invalid, we do not need to search in its sub-substrings)
+// Thus, the process are as the following:
+// 1. move right rightwards 1 by each step
+//  update toMatch (decrease the char we've matched)
+//  update matchedCnt:
+//    - if toMatch[rightC] === 0: matchedCnt += 1
+//  if the substring is valid (matchedCnt === pattern.length): try finding smaller substrings
+//  by moving left
+// 2. how to move left: rightwards 1 by each step
+//  update toMatch (increase the leaving char that matched in the pattern)
+//  update matchedCnt:
+//    - if toMatch[leftC] === 1: matchedCnt -= 1
+//  update resL and resR if the substring is valid
+//
+// Time: O(N+K)
+
 export const findSmallestSubstringContaining = (
   str: string,
   pattern: string
 ): string => {
-  const charFreq: Record<string, number> = {}
-  let numMatched = 0
-  let l = 0
-  let r = 0
   let resL = 0
   let resR = -1
-  // init charFreq
+  const toMatch: Record<string, number> = {}
+  let matchedCnt = 0
+  let l = 0
+  let r = 0
+  // init toMatch
   for (let i = 0; i < pattern.length; i += 1) {
-    if (charFreq[pattern[i]] === undefined) {
-      charFreq[pattern[i]] = 0
+    if (toMatch[pattern[i]] === undefined) {
+      toMatch[pattern[i]] = 0
     }
-    charFreq[pattern[i]] += 1
+    toMatch[pattern[i]] += 1
   }
   for (r = 0; r < str.length; r += 1) {
     const rightC = str[r]
-    if (charFreq[rightC] !== undefined) {
-      charFreq[rightC] -= 1
+    if (toMatch[rightC] !== undefined) {
+      toMatch[rightC] -= 1
     }
-    if (charFreq[rightC] === 0) {
-      numMatched += 1
+    if (toMatch[rightC] === 0) {
+      matchedCnt += 1
     }
-    while (numMatched === pattern.length) {
+    while (matchedCnt === pattern.length) {
       if (r - l + 1 < resR - resL + 1 || resR === -1) {
-        resL = l
         resR = r
+        resL = l
       }
-      // shrink
       const leftC = str[l]
-      if (charFreq[leftC] !== undefined) {
-        // we don't care those chars not in the pattern
-        charFreq[leftC] += 1
+      if (toMatch[leftC] !== undefined) {
+        toMatch[leftC] += 1
       }
-      if (charFreq[leftC] === 1) {
-        numMatched -= 1
+      if (toMatch[leftC] === 1) {
+        matchedCnt -= 1
       }
       l += 1
     }

@@ -13,27 +13,71 @@
 //
 // Time: O(n) - each element is examinied only twice
 
+// export const fruitsIntoBaskets = (fruits: string[]): number => {
+//   const baskets: Record<string, number> = {}
+//   let l = 0
+//   let r = 0
+//   let maxTotal = 0
+//   for (r = 0; r < fruits.length; r += 1) {
+//     if (baskets[fruits[r]] === undefined) {
+//       baskets[fruits[r]] = 0
+//     }
+//     baskets[fruits[r]] += 1
+//     // shrinking
+//     while (Object.keys(baskets).length > 2) {
+//       baskets[fruits[l]] -= 1
+//       if (baskets[fruits[l]] === 0) {
+//         delete baskets[fruits[l]]
+//       }
+//       l += 1
+//     }
+//     if (Object.keys(baskets).length <= 2) {
+//       maxTotal = Math.max(r - l + 1, maxTotal)
+//     }
+//   }
+//   return maxTotal
+// }
+
+// review practices //
+
+// Actually, the question is to find the longest continuous subarray which only contains no more
+//  than 2 distinct characters.
+// Use hashmap fruitCnt{} to memorize types of the fruits within the subarray, and their counts.
+// When sliding left, fruitCnt[fruits[left]] -= 1; delete the value when it reaches 0; so that we
+//  know the subarray is valid by Objects.keys(fruitCnt).length === 2 -> in O(1) time
+// Also, we need to update fruitSum everytime the subarray is valid --
+//  sum = windowSize
+// 1. move right 1 by each step
+//  update fruitCnt
+//  when the subarray is invalid, move left until it becomes valid
+//  update maxSum when the subarray is valid
+// 2. how to move left? -- rightwards
+//  update fruitCnt
+//  until the subarray is valid
+//
+// Time: O(N), Space: O(1)
+
 export const fruitsIntoBaskets = (fruits: string[]): number => {
-  const baskets: Record<string, number> = {}
+  const fruitCnt: Record<string, number> = {}
   let l = 0
   let r = 0
-  let maxTotal = 0
+  let maxSum = 0
   for (r = 0; r < fruits.length; r += 1) {
-    if (baskets[fruits[r]] === undefined) {
-      baskets[fruits[r]] = 0
+    const rFruit = fruits[r]
+    if (fruitCnt[rFruit] === undefined) {
+      fruitCnt[rFruit] = 0
     }
-    baskets[fruits[r]] += 1
-    // shrinking
-    while (Object.keys(baskets).length > 2) {
-      baskets[fruits[l]] -= 1
-      if (baskets[fruits[l]] === 0) {
-        delete baskets[fruits[l]]
+    fruitCnt[rFruit] += 1
+    while (Object.keys(fruitCnt).length > 2) {
+      const lFruit = fruits[l]
+      fruitCnt[lFruit] -= 1
+      if (fruitCnt[lFruit] === 0) {
+        delete fruitCnt[lFruit]
       }
       l += 1
     }
-    if (Object.keys(baskets).length <= 2) {
-      maxTotal = Math.max(r - l + 1, maxTotal)
-    }
+    // the subarray is valid
+    maxSum = Math.max(maxSum, r - l + 1)
   }
-  return maxTotal
+  return maxSum
 }

@@ -14,30 +14,30 @@
 // Time: O(N) -- because each elements are inspected only twice. the manipulate of hashmap is O(1)
 // Space: O(N)
 
-export const longestSubstringWithKDistinctChars = (
-  str: string,
-  k: number
-): number => {
-  const charFreq: Record<string, number> = {}
-  let l = 0
-  let r = 0
-  let maxLen = 0
-  for (r = 0; r < str.length; r++) {
-    const rightChar = str[r]
-    if (charFreq[rightChar] === undefined) {
-      charFreq[rightChar] = 0
-    }
-    charFreq[rightChar] += 1
-    while (Object.keys(charFreq).length > k) {
-      // shrink
-      const leftChar = str[l]
-      charFreq[leftChar] -= 1
-      if (charFreq[leftChar] === 0) {
-        delete charFreq[leftChar]
-      }
-      l += 1
-    }
-    maxLen = Math.max(r - l + 1, maxLen)
-  }
-  return maxLen
-}
+// export const longestSubstringWithKDistinctChars = (
+//   str: string,
+//   k: number
+// ): number => {
+//   const charFreq: Record<string, number> = {}
+//   let l = 0
+//   let r = 0
+//   let maxLen = 0
+//   for (r = 0; r < str.length; r++) {
+//     const rightChar = str[r]
+//     if (charFreq[rightChar] === undefined) {
+//       charFreq[rightChar] = 0
+//     }
+//     charFreq[rightChar] += 1
+//     while (Object.keys(charFreq).length > k) {
+//       // shrink
+//       const leftChar = str[l]
+//       charFreq[leftChar] -= 1
+//       if (charFreq[leftChar] === 0) {
+//         delete charFreq[leftChar]
+//       }
+//       l += 1
+//     }
+//     maxLen = Math.max(r - l + 1, maxLen)
+//   }
+//   return maxLen
+// }

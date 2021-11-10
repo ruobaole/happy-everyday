@@ -80,3 +80,56 @@ export const tripletsWithSmallerSum2 = (
   }
   return result
 }
+
+// review practices //
+
+// The follow-up question
+// Similar to threeSum. However the searching strategy is a little bit different --
+// 1. when sum === targetSum, we need to find pairs with smaller sum, thus -> high -= 1
+// 2. when sum < targetSum, not only one but a series of result are found.
+//   push all pairs such that high lies in the range [mid+1, curHigh] in to results;
+//   search: continue as mid += 1; high revert to curHigh
+// 3. when sum > targetSum, high -= 1
+//
+// Time: best case O(N^2) -- if no such triplets can be found, we only need to iterate the low, and
+//  in each iteration, the mid and high.
+//  worst case O(N^3) -- if all triplets are the result, we actually need to iterate low and mid while
+//  pushing highs in each single iteration.
+
+export const tripletsWithSmallerSum2_r1 = (
+  arr: number[],
+  target: number
+): number[][] => {
+  const result: number[][] = []
+  arr.sort()
+
+  const pushResults = (
+    low: number,
+    mid: number,
+    high: number,
+    result: number[][]
+  ): void => {
+    while (high > mid) {
+      result.push([arr[low], arr[mid], arr[high]])
+      high -= 1
+    }
+  }
+
+  let low = 0
+  let mid = 0
+  let high = 0
+  for (low = 0; low < arr.length - 2; low += 1) {
+    mid = low + 1
+    high = arr.length - 1
+    while (mid < high) {
+      const sum = arr[low] + arr[mid] + arr[high]
+      if (sum >= target) {
+        high -= 1
+      } else {
+        pushResults(low, mid, high, result)
+        mid += 1
+      }
+    }
+  }
+  return result
+}

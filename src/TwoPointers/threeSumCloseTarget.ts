@@ -59,3 +59,66 @@ export const threeSumCloseTarget = (
   }
   return result
 }
+
+// review practices //
+
+// Sort the array first, use the similar strategy as threeSum
+// However this time in searching, we need to always keep record of the current best sum. And
+//  each time, compare with the sum to see if we need to update it.
+// if sum > targetSum || sum < targetSum:
+//  calculate the differences. Update the current best sum if the difference is smaller OR
+//  the difference are the same, but the sum is smaller.
+// if sum === targetSum: return the sum directly
+//
+// Time: O(N^2) -- same as threeSum
+// Space: O(N) -- remember that sorting takes O(N) space
+
+export const threeSumCloseTarget_r1 = (
+  arr: number[],
+  targetSum: number
+): number => {
+  // Assume the arr contains at least 3 elements
+  arr.sort()
+  let bestSum = arr[0] + arr[1] + arr[2]
+  let low = 0
+  let mid = 0
+  let high = 0
+  for (low = 0; low < arr.length - 2; low += 1) {
+    // skip duplicates - no need to examine duplicate triplets
+    if (low - 1 > 0 && arr[low] === arr[low - 1]) {
+      continue
+    }
+    mid = low + 1
+    high = arr.length - 1
+    while (mid < high) {
+      while (mid - 1 > low && arr[mid] === arr[mid - 1]) {
+        mid += 1
+      }
+      while (high + 1 < arr.length && arr[high] === arr[high + 1]) {
+        high -= 1
+      }
+      if (mid < high) {
+        const sum = arr[low] + arr[mid] + arr[high]
+        if (sum === targetSum) {
+          bestSum = sum
+          break
+        }
+        if (sum < targetSum) {
+          mid += 1
+        } else {
+          high -= 1
+        }
+        // update bestSum
+        const diff = Math.abs(sum - targetSum)
+        const bestDiff = Math.abs(bestSum - targetSum)
+        if (diff < bestDiff || (diff === bestDiff && sum < bestSum)) {
+          bestSum = sum
+        }
+      }
+    }
+    if (bestSum === targetSum) {
+      break
+    }
+  }
+  return bestSum
+}

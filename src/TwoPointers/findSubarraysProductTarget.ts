@@ -30,13 +30,58 @@ export const findSubarraysWithProductTarget = (
   let l = 0
   for (r = 0; r < arr.length; r += 1) {
     product *= arr[r]
-    while (product >= target && l < r) {
+    while (product >= target && l <= r) {
       product /= arr[l]
       l += 1
     }
     // collect all sub-subarrays within [l, r]
     const tmp: number[] = []
     for (let i = r; i > l - 1; i -= 1) {
+      tmp.push(arr[i])
+      result.push([...tmp])
+    }
+  }
+  return result
+}
+
+// review practices //
+
+// This is a sliding window + two pointers problem!
+// In sliding window problems, we always be asked to find THE SMALLEST / LONGEST continues subarray.
+// while in this problem, all such subarrays should be found.
+// Hence,
+// 1. use sliding window to find the largest valid subarrays starting at each elements
+// 2. then, all sub-subarrays containing in that subarray shoulds be valid
+// 3. to avoid duplicates, each time we only push in sub-subarrays that ending at right
+//   all the others ending at range [left, right-1] should have been already added in former iterations.
+// NOTE that when sliding window, the window's left and right bounds are at most left === right
+//  or the window is meaningless.
+//
+// Time: best case O(N) - when on such subarrays can be found, only sliding the window
+//  worst case - O(N^3) when all of the subarrays are valid, each sliding window iteration takes
+//  O(N) iterations to traverse sub-subarrays, and the copy of the sub-subarrays take O(N) time.
+// Space: is the resulting subarrays, worst case is when all the subrrays are valid --
+//  number of subarrays: n + n-1 + n-2 + ... 1 -> O(N^2)
+//  each of the subarray, at most O(N)
+//  thus, O(N^3)
+
+export const findSubarraysWithProductTarget_r1 = (
+  arr: number[],
+  target: number
+): number[][] => {
+  const result: number[][] = []
+  let l = 0
+  let r = 0
+  let product = 1
+  for (r = 0; r < arr.length; r += 1) {
+    product *= arr[r]
+    while (product >= target && l <= r) {
+      product /= arr[l]
+      l += 1
+    }
+    // valid, push all results
+    const tmp: number[] = []
+    for (let i = r; i >= l; i -= 1) {
       tmp.push(arr[i])
       result.push([...tmp])
     }

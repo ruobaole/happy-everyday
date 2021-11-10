@@ -91,3 +91,55 @@ export const shortestWindowSort2 = (arr: number[]): number => {
   }
   return high - low + 1
 }
+
+// review pracitces //
+
+// The problem asked us to find the shortest window that once sorted, the whole array will be sorted.
+// Say this window is -- resWindow. It divides the array into 3 parts. left(ascending), resWin(non-ascending),
+//   right(ascending)
+// The 3 parts should follow such constraints ----
+//  minLeft < maxLeft (naturally), maxLeft < minRes, minRes < maxRes (naturally), maxRes < minRight,
+//  minRight < maxRight (naturally)
+// Thus, 3 steps are needed:
+// 1. find the boundary maxLeft, and minRight.
+//  from the left and end sides of the array, find the first elements that is out of sort.
+//  NOTE: if the array is sorted (e.g. [1, 2, 3]), now resLeft will be at index 2 while resRight = 0
+//    we need to give special care to this situation
+// 2. correct maxLeft according to minRes
+//  traverse from minRes leftwards, includes all elements that is > minRes
+//  (now, maxRes could be updated, but since maxRes_new >= maxRes, it does not influence the next step)
+// 3. correct minRight according to maxRes
+//  traverse from maxRes rightwards, includes all elements that is < maxRes (<= maxRes_new)
+//
+// Time: O(N)
+
+export const shortestWindowSort2_r1 = (arr: number[]): number => {
+  // 1. get initial boundary of the result window
+  let left = 0
+  let right = arr.length - 1
+  while (left < arr.length - 1 && arr[left] <= arr[left + 1]) {
+    left += 1
+  }
+  if (left === arr.length - 1) {
+    // the array is sorted
+    return 0
+  }
+  while (right > 0 && arr[right] >= arr[right - 1]) {
+    right -= 1
+  }
+  // 2. get the min and max of the window
+  let minRes = arr[left]
+  let maxRes = arr[left]
+  for (let i = left; i <= right; i += 1) {
+    minRes = Math.min(minRes, arr[i])
+    maxRes = Math.max(maxRes, arr[i])
+  }
+  // 3. expand the window -- correct maxLeft and minRight
+  while (left - 1 >= 0 && arr[left - 1] > minRes) {
+    left -= 1
+  }
+  while (right + 1 < arr.length && arr[right + 1] < maxRes) {
+    right += 1
+  }
+  return right - left + 1
+}

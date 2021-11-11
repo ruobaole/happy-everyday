@@ -55,3 +55,59 @@ export const reorderLinkedList = (head: Node | null): Node | null => {
   }
   return head
 }
+
+// review practices //
+
+// 1. slow/fast pointers to find the middle point -- mid
+// 2. reverse the second half -- newHead (now mid is tail and mid -> null)
+// 3. start inserting the reversed 2nd half (newHead) into the 1st half (head)
+//   first = head; second = newHead;
+//   firstNxt = first.next, secondNxt = second.next
+//   first.next = second, second.next = firstNxt
+//   first = firstNxt, second = secondNxt
+// NOTE: the mid will always be the tail. Thus, when first === mid (now, second === null), we should break
+//  and first.next = null.
+//  else, we will append mid.next = mid -> and cause an infinite loop
+//
+// Time: O(N)
+
+const reverseLinkedList_r1 = (head: Node | null): Node | null => {
+  let prev = null
+  let
+  while (p2) {
+    const tmp = p2.next
+    p2.next = p1
+    p2 = tmp
+    p1 = p2
+  }
+  return p1
+}
+
+export const reorderLinkedList_r1 = (head: Node | null) => {
+  // 1. find mid
+  let slow = head
+  let fast = head
+  while (slow && fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+  }
+  const mid = slow
+  // 2. reverse the second half
+  const newHead = reverseLinkedList_r1(mid)
+
+  // 3. insert
+  let first = head
+  let second = newHead
+  while (first && second) {
+    // not reaching the tail
+    const firstNxt = first.next
+    const secondNxt = second.next
+    first.next = second
+    second.next = firstNxt
+    first = firstNxt
+    second = secondNxt
+  }
+  if (first) {
+    first.next = null
+  }
+}

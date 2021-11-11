@@ -58,3 +58,78 @@ export const circularArrayLoop = (arr: number[]): boolean => {
   }
   return false
 }
+
+// review practices //
+
+// For all the elements in the array, there can be elements within a valid loop; elements
+//  within an invalid loop; and elements that are not in a loop (but should lead to a loop)
+// Thus, we cannot be sure to start from index 0 and say we must get to a valid loop (we could
+//  get to invalid loop).
+// We can start from each element of the array, slow/fast to see if it leads us to a valid loop.
+// This takes unnecessary time because, once we've proved that an element leads to an invalid loop,
+//  next time we encounter this element, there is no need to traverse again.
+// Thus, we use an array (inited to -1) to mark the starting point of the 'journey' we've already
+//  been to that could take us to that index.
+// Stop iterating if we reached a visited journey, or find a valid loop.
+//
+// Time: O(N) - each element is visited only once; Space: O(N)
+
+export const circularArrayLoop_r1 = (arr: number[]): boolean => {
+  let res = false
+  const memo = new Array(arr.length).fill(-1)
+
+  const getNext = (cur: number): number => {
+    const wrappedStep = (cur + arr[cur]) % arr.length
+    return wrappedStep >= 0 ? wrappedStep : arr.length + wrappedStep
+  }
+
+  const checkLoop = (start: number): boolean => {
+    let valid = false
+    let slow = start
+    let fast = start
+    let met = false
+    while (!met) {
+      if (memo[slow] !== -1 && memo[slow] !== start) {
+        valid = false
+        break
+      }
+      memo[slow] = start
+      if (slow === getNext(slow)) {
+        // cycle length is 1
+        valid = false
+        break
+      }
+      slow = getNext(slow)
+      fast = getNext(getNext(fast))
+      if (slow === fast) {
+        met = true
+      }
+    }
+    if (met) {
+      // check direction
+      const direction = arr[slow]
+      let i = slow
+      let metAgain = false
+      while (!metAgain) {
+        if (arr[i] * direction < 0) {
+          valid = false
+          break
+        }
+        i = getNext(i)
+        if (i === slow) {
+          metAgain = true
+          valid = true
+        }
+      }
+    }
+    return valid
+  }
+
+  for (let i = 0; i < arr.length; i += 1) {
+    if (checkLoop(i)) {
+      res = true
+      break
+    }
+  }
+  return res
+}

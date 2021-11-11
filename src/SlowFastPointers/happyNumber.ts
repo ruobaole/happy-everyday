@@ -26,3 +26,29 @@ export const isHappyNumber = (num: number): boolean => {
   }
   return slow === 1
 }
+
+// review practices //
+
+// Slow Fast pointers
+// Since the number will be either stuck at 1 or number other than 1, the pointers must meet.
+// we just need to check if they meet when the number is 1
+
+const getNextNum = (num: number): number => {
+  let sum = 0
+  while (num > 0) {
+    const digit = num % 10
+    sum += digit ** 2
+    num = Math.floor(num / 10)
+  }
+  return sum
+}
+
+export const isHappyNumber_r1 = (num: number): boolean => {
+  let slow = num
+  let fast = getNextNum(getNextNum(num))
+  while (slow !== fast) {
+    slow = getNextNum(slow)
+    fast = getNextNum(getNextNum(fast))
+  }
+  return slow === 1
+}

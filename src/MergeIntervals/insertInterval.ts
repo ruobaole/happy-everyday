@@ -48,3 +48,57 @@ export const insertInterval = (
   }
   return result
 }
+
+// review pratices //
+
+// 1. First, push all intervals that must not overlap with the new one into result lists.
+//  i.e. intervals that ends before newInterval starts
+//  we iterate throught the list and push all such intervals until we got to the first one that has
+//  last.end >= new.start
+// 2. last and new could overlap and could not. Cases are:
+//  - if last.start > new.end: no overlap; push in new and push in all intervals including and after last
+//  - else: overlapped; the merged one has
+//   start = min(last.start, new.start), end = max(last.end, new.end)
+//   now new = mergedOne; last = nextInterval;
+//   we need to continue trying to merge all in the array that can be merged into mergedOne (like a very
+//   big snow ball)
+// 3. after merge all that can be merged into one, we push in that one into the result, and push in all
+//  the rest of the intervals left
+//
+// Time: O(N) - each interval is only visited once
+// Space: O(N) - no more than the original size
+
+export const insertInterval_r1 = (
+  intervals: Interval[],
+  newInterval: Interval
+): Interval[] => {
+  const result: Interval[] = []
+  let lastIdx = 0
+  // 1. push in all the intervals that cannot be overlapped with the new one
+  while (
+    lastIdx < intervals.length &&
+    intervals[lastIdx].end < newInterval.start
+  ) {
+    result.push(intervals[lastIdx])
+    lastIdx += 1
+  }
+  let newOne = newInterval
+  // 2. rolling the snowball, merge all that can be merged into newOne
+  while (lastIdx < intervals.length && intervals[lastIdx].start > newOne.end) {
+    const lastOne = intervals[lastIdx]
+    const mergedOne = new Interval(
+      Math.min(lastOne.start, newOne.start),
+      Math.max(lastOne.end, newOne.end)
+    )
+    newOne = mergedOne
+    lastIdx += 1
+  }
+  result.push(newOne)
+  // 3. push in all the others left
+  while (lastIdx < intervals.length) {
+    // merge all the rest that cannot be merged
+    result.push(intervals[lastIdx])
+    lastIdx += 1
+  }
+  return result
+}

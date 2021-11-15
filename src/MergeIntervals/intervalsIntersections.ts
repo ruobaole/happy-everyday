@@ -46,3 +46,44 @@ export const findIntersections = (
   }
   return result
 }
+
+// review practice //
+
+// Use two pointers to iterate both of the arrays at the same time, see if i1 and i2 overlapped.
+// if the two overlapped:
+//   the intersection has start = max(i1.start, i2.start), end = min(i1.end, i2.end)
+//   and then, we should move the one that ends earlier to the next one and see if it overlaps with
+//   the same one in the other list.
+// if the two do not overlap:
+//   we should also move the pointer that points to the one ends earlier, because the later ended one
+//   could be overlap with others in the array.
+//
+// Time: O(N+M)
+// Space: O(N+M)
+
+export const findIntersections_r1 = (
+  intervalsA: Interval[],
+  intervalsB: Interval[]
+): Interval[] => {
+  const result: Interval[] = []
+  let ia = 0
+  let ib = 0
+  while (ia < intervalsA.length && ib < intervalsB.length) {
+    const a = intervalsA[ia]
+    const b = intervalsB[ib]
+    const isOverlapping =
+      (a.start >= b.start && a.start <= b.end) ||
+      (b.start >= a.start && b.start <= a.end)
+    if (isOverlapping) {
+      result.push(
+        new Interval(Math.max(a.start, b.start), Math.min(a.end, b.end))
+      )
+    }
+    if (a.end <= b.end) {
+      ia += 1
+    } else {
+      ib += 1
+    }
+  }
+  return result
+}

@@ -72,3 +72,39 @@ export const mergeIntervals = (intervals: Interval[]): Interval[] => {
 // 1. the same strategy. Sort the array by starting point first
 // 2. use i, i+1 pointers to compare all the consecutive pairs.
 //   If overlapped intervals occured, they must (and only can) be consecutive ones after sorting.
+
+// review practices //
+
+// 1. sort the invervals on starting point. After sorting, if two consecutive intervals do not
+//  overlap, the later one should not overlap with any that previous to the earlier one.
+//  Thus, we only need to merge consecutive intervals repeatedly, and push the result.
+// 2. starting from the first, try to merge i and i+1. There're two base cases
+//  2.1) they can be merged into invervalC -- push intervalC into result list;
+//  try intervalC (the last of result) with i+2 in the next iteration
+//  2.2) they cannot be merged -- push the two into the result list.
+//  try i+1 (the last of result) with i+2 in the next iteration
+//
+// Time: O(N) -- merging two intervals takes O(1), looping takes O(N)
+// Space: O(N) at most the same size as the input
+
+export const mergeIntervals_r1 = (intervals: Interval[]): Interval[] => {
+  const result: Interval[] = []
+  if (intervals.length === 0) {
+    return result
+  }
+  intervals.sort((a, b) => a.start - b.start)
+  let last = intervals[0]
+  for (let i = 1; i < intervals.length; i += 1) {
+    // try to merge last with the current interval
+    if (intervals[i].start > last.end) {
+      // no overlap
+      result.push(last)
+      last = intervals[i]
+    } else {
+      // overlapped
+      last = new Interval(last.start, Math.max(last.end, intervals[i].end))
+    }
+  }
+  result.push(last)
+  return result
+}

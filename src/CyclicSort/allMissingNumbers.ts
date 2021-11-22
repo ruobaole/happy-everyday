@@ -27,3 +27,35 @@ export const findAllMissingNumbers = (nums: number[]): number[] => {
   }
   return missingNums
 }
+
+// review practices //
+
+// array length n, with all its elements in range [1, n]
+// hence we can put elements in its correct index nums[i] - 1
+// if the number's correct place has already been occupied by the correct element
+//  -- ignore nums[i]
+// in that way, at last, all numbers should be sitting on its correct site while
+// duplicates occupied all the rest places
+// iterate the array again and collect all indices that are not sitted with correct
+// elements
+//
+// Time: O(N)
+
+export const findAllMissingNumbers_r1 = (nums: number[]): number[] => {
+  const missing: number[] = []
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (nums[correctIdx] !== nums[i]) {
+      ;[nums[i], nums[correctIdx]] = [nums[correctIdx], nums[i]]
+    } else {
+      i += 1
+    }
+  }
+  nums.forEach((num, idx) => {
+    if (num - 1 !== idx) {
+      missing.push(idx + 1)
+    }
+  })
+  return missing
+}

@@ -58,3 +58,36 @@ export const minMeetingRooms = (meetings: Interval[]): number => {
 //  push in the new meeting
 //  record the minHeap's size
 // 3. the largest size of the minHeap of all time is the number of rooms needed.
+
+// review practices //
+
+// The problem calls us to find the maximum number of overlapping meetings of all time.
+// 1. use a minHeap ordered by the ending time of meetings to store overlapping meetings.
+//  each time, compare the top's end time with the new meeting's start time; -- pop all
+//  that ends before the new meeting begins; push in the new meeting
+// 2. order intervals on their starting time first -- so that all meetings in the minheap
+//  starts before the new meeting starts -- so that we can easily tell if the the new meeting
+//  overlap with a meeting in the heap by comparing the end time with the new meeting's start
+//  time
+// The max length of the minHeap of all time is the room needed
+
+import { Heap } from 'typescript-collections'
+
+export const minMeetingRooms_r1 = (meetings: Interval[]): number => {
+  let num = 0
+  const minHeap = new Heap<Interval>((a, b) => b.end - a.end)
+  meetings.sort((a, b) => a.start - b.start)
+  meetings.forEach((newMeeting) => {
+    const peekMeeting = minHeap.peek()
+    while (
+      !minHeap.isEmpty() &&
+      peekMeeting !== undefined &&
+      peekMeeting.end < newMeeting.start
+    ) {
+      minHeap.removeRoot()
+    }
+    minHeap.add(newMeeting)
+    num = Math.max(num, minHeap.size())
+  })
+  return num
+}

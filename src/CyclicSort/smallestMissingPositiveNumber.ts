@@ -41,3 +41,36 @@ export const findFirstMissingPositiveNumber = (nums: number[]): number => {
   }
   return -1
 }
+
+// review practices //
+
+// It is possible that elements in the array are >= n, or <= 0
+//  if 1 is not exists in the array, the smallest positive missing number
+//  should be 1.
+// Since we're to find the smallest positive missing number, when arrange elements
+// in its correct place, we can ignore those that are <= 1 and out of bound.
+// i.e. put elements in nums[i] - 1
+// In that way, at last, elements that are within the range [1, n] should be in their
+//  correct places, while other elements take the rest place.
+// We iterate from index = 0, the first index that is miss placed should be the smallest
+//  positive missing number
+//
+// Time: O(N)
+
+export const findFirstMissingPositiveNumber_r1 = (nums: number[]): number => {
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (nums[i] > 0 && nums[i] <= nums.length && nums[correctIdx] !== nums[i]) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j + 1) {
+      return j + 1
+    }
+  }
+  return nums.length + 1
+}

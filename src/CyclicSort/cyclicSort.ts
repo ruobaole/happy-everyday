@@ -26,3 +26,28 @@ export const cyclicSort = (nums: number[]): number[] => {
   }
   return nums
 }
+
+// review practices //
+
+// an array of n length containing numbers within range [1, n] --
+// meaning that each element should have its correct place - nums[i] - 1
+// we iterate the array, check the element's correct place --
+// nums[i] - 1, if the correct place is placed with the correct content i.e nums[i]
+// then we skip to the next nums[i + 1]
+// else, swap nums[i] to its correct place, and continue to examine nums[i]
+//
+// Time: O(N) - each element is examined at most twice -- 1) to check if its in the correct place
+//  2) swap it to its correct place
+
+export const cyclicSort_r1 = (nums: number[]): number[] => {
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (nums[correctIdx] !== nums[i]) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  return nums
+}

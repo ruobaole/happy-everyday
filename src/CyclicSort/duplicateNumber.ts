@@ -64,3 +64,46 @@ export const findDuplicates_followUp = (nums: number[]): number => {
   }
   return nums[p1]
 }
+
+// review practices //
+
+// an array of length n+1, with its elements in range [1, n]
+// all numbers can sit on its correct place - nums[i]
+// There're 2 possible cases:
+// 1) all elements in its correct place -- the duplicate number takes all the
+//  rest places -- nums[0] must be the duplicate number
+//  in that case, if we start from index = 0 and go to nums[index] each time, we
+//  should endup by looping at the index that is the duplicate number
+// 2) elements are not in its correct place -- duplicates take some of the their
+//  place
+//  in that case, from the duplicates, we will go to the numbers that should be in
+//  those places; from their, we'll reach to the duplicates again -- loop
+//  and no matter where we start, the starting point of the loop is the duplicate
+// To summarize, if duplicates occurs, we must be entering a loop whenever we reached
+//  a duplicate number
+// Hence, we can solve the problem without cyclic sort but using strategy as slow/fast
+//  to find the starting point of the loop.
+//
+// Time: O(N)
+
+export const findDuplicates_r1 = (nums: number[]): number => {
+  let slow = 0
+  let fast = 0
+  let intersect1 = -1
+  while (intersect1 === -1) {
+    slow = nums[nums[slow]]
+    fast = nums[nums[nums[slow]]]
+    if (slow === fast) {
+      intersect1 = slow
+    }
+  }
+  // the distance from 0 to the starting point ===
+  // the distance from intersect1 to the starting point
+  let p1 = 0
+  let p2 = intersect1
+  while (p1 !== p2) {
+    p1 = nums[nums[p1]]
+    p2 = nums[nums[p2]]
+  }
+  return nums[p1]
+}

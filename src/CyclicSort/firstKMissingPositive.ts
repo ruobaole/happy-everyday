@@ -62,3 +62,53 @@ export const firstKMissingPositiveNumber = (
   }
   return missingNumbers
 }
+
+// review practices //
+
+// After rearranging all elements in their correct place -- nums[i] - 1, there're 3 cases:
+// 1) elements within the range [1, n] -- already in their correct place
+// 2) elements out of bound are sitting at places where missing numbers should be, and these
+//  missing numbers are within the range [1, n]
+// 3) how to find missing numbers > n ? while iterating the rearraged array and collect missing
+//  numbers in step 2, we also record all these incorrect elements in a set
+//  after iterating, if the missingNumbers.length < k, we keep counting from n+1, if it is not
+//  in the set, record it in the missingNumbers
+// Mind that when pushing numbers to missingNumbers, check if the length is already reaching
+// k or not.
+//
+// Time: O(N) - each element is examined at most twice
+
+export const firstKMissingPositiveNumber_r1 = (
+  nums: number[],
+  k: number
+): number[] => {
+  const missingNumber: number[] = []
+  if (k <= 0) {
+    return missingNumber
+  }
+  const seen = new Set<number>()
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (nums[i] > 0 && nums[i] <= nums.length && nums[correctIdx] !== nums[i]) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j + 1 && missingNumber.length < k) {
+      missingNumber.push(j + 1)
+      seen.add(nums[j])
+    }
+  }
+  let n = nums.length + 1
+  while (missingNumber.length < k) {
+    if (!seen.has(n)) {
+      missingNumber.push(n)
+    }
+    n += 1
+  }
+  return missingNumber
+}

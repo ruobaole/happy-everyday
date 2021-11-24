@@ -52,3 +52,54 @@ export const reverseEveryKNode = (
   }
   return head
 }
+
+// review status //
+
+// when reversing every k nodes, we are interested in the below nodes:
+//  - tail of the first part
+//  - head of the reversed sublist
+//  - tail of the sublist
+//  - head of the third part
+// 1. init prev = null, cur = head
+//  we know that: firstPartTail = prev, sublistTail = cur
+// 2. reverse the sublist while counting k
+//  we know that after the reversal -- head of the sublist = prev
+//  head of the third part = cur
+// 3. link the parts
+//  NOTE that if firstPartTail is null, we need to update head to sublistHead
+// 4. after linking the parts, update prev and cur
+//  prev = sublistTail; loop from step2
+//
+// Time: O(N)
+
+export const reverseEveryKNode_r1 = (
+  head: Node | null,
+  k: number
+): Node | null => {
+  let prev: Node | null = null
+  let cur = head
+  let firstPartTail = head
+  let sublistTail = head
+  while (cur) {
+    let i = 0
+    firstPartTail = prev
+    sublistTail = cur
+    let tmp: Node | null = cur
+    while (cur && i < k) {
+      tmp = cur.next
+      cur.next = prev
+      prev = cur
+      cur = tmp
+      i += 1
+    }
+    // link the parts
+    if (firstPartTail) {
+      firstPartTail.next = prev
+    } else {
+      head = prev
+    }
+    sublistTail.next = cur
+    prev = sublistTail
+  }
+  return head
+}

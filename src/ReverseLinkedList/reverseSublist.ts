@@ -150,3 +150,64 @@ export const reverseHalves = (head: Node | null): Node | null => {
   }
   return firstHead
 }
+
+// review practices //
+
+// Divide the list into 3 parts, below are the nodes we're interested about:
+//  tail of the 1st part
+//  head of the reversed sublist
+//  tail of the reversed sublist
+//  head of the 3rd part
+// So that after the reversing, we can link the parts together.
+// 1. init prev = null, cur = head, skip p - 1 nodes
+//  now cur - the head of sublist;
+//   prev - tail of the first part;
+// 2. reverse the sublist headed at cur while keeping the count
+//  before reverse, we know store these points
+//  firstPartTail = prev
+//  sublistTail = cur
+//  after reversing, prev will points to sublistHead, and cur will points to
+//  thirdPartHead
+// 3. Linking the parts
+//  NOTE that when first part's length is 0, we have to update head, otherwise
+//  we don't need to update head, just link firstPartTail.next = sublistHead
+
+export const reverseSublist_r1 = (
+  head: Node | null,
+  p: number,
+  q: number
+): Node | null => {
+  let prev: Node | null = null
+  let cur = head
+  // skip first part
+  let i = 0
+  while (cur && i < p - 1) {
+    prev = cur
+    cur = cur.next
+    i += 1
+  }
+  const firstPartTail = prev
+  const sublistTail = cur
+  // reverse sublist
+  i = 0
+  let tmp = cur
+  while (cur && i < q - p + 1) {
+    tmp = cur.next
+    cur.next = prev
+    prev = cur
+    cur = tmp
+    i += 1
+  }
+  const sublistHead = prev
+  const thirdPartHead = cur
+  // link the parts
+  if (firstPartTail) {
+    firstPartTail.next = sublistHead
+  } else {
+    head = sublistHead
+  }
+  if (sublistTail) {
+    sublistTail.next = thirdPartHead
+  }
+  return head
+}

@@ -98,3 +98,63 @@ export const findPathWithMaxPath = (root: TreeNode | null): TreeNode[] => {
   findPathWithMaxPathHelper(root, curPath, resPath, curSum, maxSum)
   return resPath
 }
+
+// review practices //
+
+// DFS while passing in the array representing the current path
+//  and the array representing the result paths
+// Base case is the leaf node (we collect results at leaf nodes, or
+//  the result can be duplicated)
+// If leaf node:
+//  check if root.value === sum
+//  if true -- find a path, push the path into the result
+// If not leaf node:
+//  update sum = sum - root.value
+//  add root.value to the current path
+//  collect paths at the left subtree
+//  collect paths at the right subtree
+//  don't forget to recover the state of the curPath before return (backtracking)
+//
+// Time: worst case O(NlogN), best case O(N). Because at leaf nodes, if the path exists
+//  we have to copy the path, that is O(logN), the number of leaf node is O(N)
+// Space: bounded by the result array and the callstack
+//  worst case is when every path is the valid -- O(NlogN)
+
+const findAllPaths_r1Helper = (
+  root: TreeNode,
+  sum: number,
+  curPath: number[],
+  result: number[][]
+): void => {
+  curPath.push(root.value)
+  if (root.left === null && root.right === null) {
+    // leaf node
+    if (root.value === sum) {
+      // path found!
+      // NOTE that we should copy the path
+      result.push([...curPath])
+    }
+  } else {
+    if (root.left) {
+      findAllPaths_r1Helper(root.left, sum - root.value, curPath, result)
+    }
+    if (root.right) {
+      findAllPaths_r1Helper(root.right, sum - root.value, curPath, result)
+    }
+  }
+  // recover to the state of current level (because we have push the value
+  //  at the beginning)
+  curPath.pop()
+}
+
+export const findAllPaths_r1 = (
+  root: TreeNode | null,
+  sum: number
+): number[][] => {
+  const result: number[][] = []
+  if (root === null) {
+    return result
+  }
+  findAllPaths_r1Helper(root, sum, [], result)
+  return result
+}

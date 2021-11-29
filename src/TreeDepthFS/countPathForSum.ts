@@ -45,3 +45,52 @@ const countSumHelper = (
 export const countSum = (root: TreeNode | null, sum: number): number => {
   return countSumHelper(root, sum, [])
 }
+
+// review practice //
+
+// We have to examine all paths to count -- thus, DFS the tree.
+// What should we return when DFS?
+// - NOTE that return is when backtracking. When backtracking, the subtree's
+//  result should be the sum of 3 parts:
+//  1) the count of paths that ends at root
+//  2) the result from the left subtree
+//  3) the result from the right subtree
+// How to calculate 1)?
+// - we pass in the array representing the current path while DFS
+//  iterate the array backwards to count 1)
+// Base case is the null node: return 0 -- the 1) number in this case has been added
+//  in its parent node
+//
+// Time: O(NlogN) - all nodes are visited; at each node, we itereate the current path
+//  current path can be at most logN length
+// Space: bounded by the callstack and the array of current path -- O(logN)
+
+const countSum_r1Helper = (
+  root: TreeNode | null,
+  sum: number,
+  curPath: number[]
+): number => {
+  if (root === null) {
+    return 0
+  }
+  curPath.push(root.value)
+  let s = 0
+  let cnt = 0
+  for (let i = curPath.length - 1; i >= 0; i -= 1) {
+    s += curPath[i]
+    if (s === sum) {
+      cnt += 1
+    }
+  }
+  cnt +=
+    countSum_r1Helper(root.left, sum, curPath) +
+    countSum_r1Helper(root.right, sum, curPath)
+  // because we're reusing the array - curPath, recover it to its current state
+  // while backtracking
+  curPath.pop()
+  return cnt
+}
+
+export const countSum_r1 = (root: TreeNode | null, sum: number): number => {
+  return countSum_r1Helper(root, sum, [])
+}

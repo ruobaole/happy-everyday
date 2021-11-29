@@ -32,3 +32,40 @@ export const sumOfPathNum = (root: TreeNode | null): number => {
   }
   return sumOfPathNumHelper(root, 0)
 }
+
+// review practices //
+
+// BFS the tree while passing in the number of the current path
+// For each subtree, the result is the sum of path numbers in its left subtree
+//  and the sum of path numbers in its right subtree
+// Base case is the leaf node, here we should return the path number
+// we don't return them at null nodes because in that case, the path numbers are added
+//  with duplicates
+//
+// Time: O(N) every node is visited
+// Space: O(logN) callstack
+
+const sumOfPathNum_r1Helper = (root: TreeNode, pathNum: number): number => {
+  pathNum = pathNum * 10 + root.value
+  if (root.left === null && root.right === null) {
+    // leaf node
+    return pathNum
+  }
+  let res = 0
+  if (root.left) {
+    res += sumOfPathNum_r1Helper(root.left, pathNum)
+  }
+  if (root.right) {
+    res += sumOfPathNum_r1Helper(root.right, pathNum)
+  }
+  // do not need to recover pathNum here, because it is not a reference --
+  // it is not modified in the above calls
+  return res
+}
+
+export const sumOfPathNum_r1 = (root: TreeNode | null): number => {
+  if (root === null) {
+    return 0
+  }
+  return sumOfPathNum_r1Helper(root, 0)
+}

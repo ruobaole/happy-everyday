@@ -32,3 +32,42 @@ export const connectAllSuccessors = (root: TreeNodeWithNext | null): void => {
     }
   }
 }
+
+// review practices //
+
+// BFS to traverse the tree
+// At every level, while popping out nodes from the queue, link the
+// node with the next node in the queue.
+// Note that in this way, we should add the node's children to the queue
+//  first and then link it to the next node (the queue's current peek)
+// link the last node's next to null
+//
+// Time: O(N)
+// Space: size of queue, O(N)
+
+export const connectAllSuccessors_r1 = (
+  root: TreeNodeWithNext | null
+): void => {
+  if (root === null) {
+    return
+  }
+  const queue: TreeNodeWithNext[] = []
+  queue.push(root)
+  while (queue.length > 0) {
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift()
+      if (node) {
+        // add nodes' children before link the nodes
+        if (node.left) {
+          queue.push(node.left)
+        }
+        if (node.right) {
+          queue.push(node.right)
+        }
+        const nextNode = queue[0]
+        node.next = nextNode === undefined ? null : nextNode
+      }
+    }
+  }
+}

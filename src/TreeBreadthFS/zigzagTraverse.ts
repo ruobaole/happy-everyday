@@ -45,3 +45,46 @@ export const zigzagTraverse = (root: TreeNode | null): number[][] => {
   }
   return result
 }
+
+// review practices //
+
+// BFS to traverse the tree
+// at each level, push values of the subQueue (with level length) into the level result.
+// when adding values to the level result, see if leftToRight is true
+// if true, adding at ends
+// else, adding from the beginning (unshift)
+//
+// Time: O(N)
+// Space: O(N) - the result list
+
+export const zigzagTraverse_r1 = (root: TreeNode | null): number[][] => {
+  const result: number[][] = []
+  if (root === null) {
+    return result
+  }
+  const queue: TreeNode[] = []
+  queue.push(root)
+  let lToR = true
+  while (queue.length > 0) {
+    const lvLen = queue.length
+    const lvRes: number[] = []
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift()
+      if (node) {
+        if (lToR) {
+          lvRes.push(node.value)
+        } else {
+          lvRes.unshift(node.value)
+        }
+        if (node.left) {
+          queue.push(node.left)
+        }
+        if (node.right) {
+          queue.push(node.right)
+        }
+      }
+    }
+    lToR = !lToR
+  }
+  return result
+}

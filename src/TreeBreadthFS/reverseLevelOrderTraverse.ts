@@ -38,3 +38,44 @@ export const reverseLevelOrderTraverse = (
   }
   return result
 }
+
+// review practices //
+
+// BFS to traverse the tree, in each level, populate the queue's value
+// into the level result
+// when adding level results to the final result, we should append each one
+// from the beginning -- hence, a deque is needed so that the appending takes O(1)
+// JS - this can be achieved by array unshift()
+//
+// Time: O(N) - assuming the unshift() in js takes O(1) (the implementation of the array
+//  is linkedlist-like)
+// Space: O(N) - the result array
+
+export const reverseLevelOrderTraverse_r1 = (
+  root: TreeNode | null
+): number[][] => {
+  const result: number[][] = []
+  if (root === null) {
+    return result
+  }
+  const queue: TreeNode[] = []
+  queue.push(root)
+  while (queue.length > 0) {
+    const lvLen = queue.length
+    const lvRes: number[] = []
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift()
+      if (node) {
+        lvRes.push(node.value)
+        if (node.left) {
+          queue.push(node.left)
+        }
+        if (node.right) {
+          queue.push(node.right)
+        }
+      }
+    }
+    result.unshift(lvRes)
+  }
+  return result
+}

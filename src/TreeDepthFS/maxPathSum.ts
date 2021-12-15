@@ -47,3 +47,42 @@ export const findMaxPathSum = (root: TreeNode | null): number => {
   }
   return findMaxPathSumHelper(root)[1]
 }
+
+// review practices //
+
+// We cannot know in advance where the path with the max sum will be
+// Hence, we DFS to iterate all subtrees and find the path within these
+//  subtrees.
+// For every subtree:
+// - curSum = max(pathSumLeft, 0) + max(pathSumRight, 0) + root.value
+// - maxSum = max(sumLeft, curSum, sumRight)
+// - pathSum = max(pathSumLeft, pathSumRight, 0) + root.value (because
+//  the sequence can be between every two nodes; only one node is ok)
+// every subtree returns [maxSum, pathSum]
+// Base Case:
+//  null node (leaf node is also OK)
+//  return [-Infinity, -Infinity] -- in cases when the root.value is negative
+//   and it does not have a right child -- we don't want the maxSum to be 0
+//
+// Time: O(N) - each node is visited once; the operation is O(1)
+// Space: O(logN) - callstack
+
+// [maxSum, pathSum]
+const findMaxPathSum_r1Helper = (root: TreeNode | null): [number, number] => {
+  if (root === null) {
+    return [-Infinity, -Infinity]
+  }
+  const [leftSum, leftPathSum] = findMaxPathSum_r1Helper(root.left)
+  const [rightSum, rightPathSum] = findMaxPathSum_r1Helper(root.right)
+  const curSum =
+    Math.max(leftPathSum, 0) + Math.max(rightPathSum, 0) + root.value
+  const maxSum = Math.max(Math.max(leftSum, curSum), rightSum)
+  const pathSum =
+    Math.max(Math.max(leftPathSum, 0), Math.max(rightPathSum, 0)) + root.value
+  return [maxSum, pathSum]
+}
+
+export const findMaxPathSum_r1 = (root: TreeNode | null): number => {
+  const result = findMaxPathSum_r1Helper(root)
+  return result[0]
+}

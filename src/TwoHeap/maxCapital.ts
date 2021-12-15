@@ -67,3 +67,54 @@ export const findMaxCapital = (
   }
   return curCap
 }
+
+// review practice //
+
+// Because the total number of projects to select is limited, in each round
+//  for all the projects that are available, we need to first pick the one
+//  with larger profit.
+// Two heaps -- one to check projects' availability (constraint), the other one is a maxHeap
+//  to store all available projects based on their profits
+// In each round of selection, we perform greedy strategy with some constraints.
+// 1. pop all from the minHeap (ordered by the projects' capitals) that are available
+//  for our current capital;
+//  push them into the maxHeap (ordered by the projects' profits);
+// 2. from the maxHeap, pop the top one which has the largest profit
+// Iterate until the total number of the projects selected reach the limit
+//
+// Time: O(NlogN) bounded by initial the minHeap -- add all projects to the minHeap
+// Space: O(N) -- heap size
+
+export const findMaxCapital_r1 = (
+  capital: number[],
+  profits: number[],
+  numberOfProjects: number,
+  initialCapital: number
+): number => {
+  // [capital, projectIdx]
+  const minHeap: Heap<[number, number]> = new Heap((a, b) => b[0] - a[0])
+  // profit
+  const maxHeap: Heap<number> = new Heap((a, b) => a - b)
+  let curCapital = initialCapital
+  let cnt = 0
+  capital.forEach((cap, idx) => minHeap.add([cap, idx]))
+  while (cnt < numberOfProjects) {
+    // 1. get all available projects from the minHeap
+    while (
+      minHeap.peek() !== undefined &&
+      (minHeap.peek() as [number, number])[0] <= curCapital
+    ) {
+      const minHeapRoot = minHeap.removeRoot()
+      if (minHeapRoot !== undefined) {
+        maxHeap.add(profits[minHeapRoot[1]])
+      }
+    }
+    // 2. pick the one with the largest profit
+    const maxHeapTop = maxHeap.removeRoot()
+    if (maxHeapTop !== undefined) {
+      curCapital += maxHeapTop
+      cnt += 1
+    }
+  }
+  return curCapital
+}

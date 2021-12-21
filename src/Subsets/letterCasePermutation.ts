@@ -41,3 +41,50 @@ export const letterCasePermu = (str: string): string[] => {
   }
   return permu
 }
+
+// review practices //
+
+// BFS to generate all answers.
+// Start with the original string
+// At level 0, branching between str[0] being capital or lowercase;
+// At level 1. for all the answers in level0, branching each answer between
+//   str[1] being capital or lowercase;
+// If str[lv] is not a letter that has upper and lowercases, directly skip
+//  the level;
+//  -- to check if a char has upper and lowercases: check if
+//    char.toLocaleLowerCase() !== char.toLocaleUpperCase()
+// Collet answers at leaf level.
+//
+// Time: the number of answers is O(2^N) -- N being the number of chars having
+//  two form cases;
+//  In creating each answer, we need copy the original one -- O(N)
+//  thus the time is O(N * 2^N)
+// Space: bounded by the answer array -- O(N * 2^N)
+
+const hasTwoForms = (letter: string): boolean => {
+  return letter.toLocaleLowerCase() !== letter.toLocaleUpperCase()
+}
+
+export const letterCasePermu_r1 = (str: string): string[] => {
+  const result: string[] = [str]
+  for (let lv = 0; lv < str.length; lv += 1) {
+    const lvLen = result.length
+    if (!hasTwoForms(str[lv])) {
+      continue
+    }
+    for (let j = 0; j < lvLen; j += 1) {
+      const prevAns = result[j]
+      const prevAnsArray = prevAns.split('')
+      const ansArray = [...prevAnsArray]
+      if (ansArray[lv].toLocaleUpperCase() === ansArray[lv]) {
+        // upper case, the new one should be lower case
+        ansArray[lv] = ansArray[lv].toLocaleLowerCase()
+      } else {
+        // lower case, the new one should be upper case
+        ansArray[lv] = ansArray[lv].toLocaleUpperCase()
+      }
+      result.push(ansArray.join(''))
+    }
+  }
+  return result
+}

@@ -36,3 +36,46 @@ export const findAllPermutations = (nums: number[]): number[][] => {
   }
   return permu
 }
+
+// review practices //
+
+// Imagine we have only one element, there'll be only one permutation
+// Now if we add the second element, there're two possible positions that
+//  we can add the element -- hence generating two permutations
+// Now if we add the 3rd element, the possible positions to insert this element
+//  will increased to 3; and based on the previous 2 possibilities, the total
+//  number of permutations will be 6;
+// We can use this strategy to generate permutations in BFS way
+// start with [[]], in each level, try inserting nums[level] into the answers of
+// the previous level's answers
+// Return answers at the leaf level
+//
+// Time: the number of permutation -- N!; in creating each permutation, we insert
+//  based on the previous answer -> calls for array copy -- bounded by O(N) ->
+//  O(N * N!)
+// Space: bounded by the result array -- O(N * N!)
+
+export const findAllPermutations_r1 = (nums: number[]): number[][] => {
+  const result: number[][] = []
+  const queue: number[][] = [[]]
+  for (let lv = 0; lv < nums.length; lv += 1) {
+    const queueLen = queue.length
+    const lvNum = nums[lv]
+    for (let i = 0; i < queueLen; i += 1) {
+      const prevAns = queue.shift()
+      if (prevAns) {
+        // iterate all possible positions
+        for (let pos = 0; pos <= prevAns.length; pos += 1) {
+          const newAns = [...prevAns]
+          newAns.splice(pos, 0, lvNum)
+          if (lv === nums.length - 1) {
+            result.push(newAns)
+          } else {
+            queue.push(newAns)
+          }
+        }
+      }
+    }
+  }
+  return result
+}

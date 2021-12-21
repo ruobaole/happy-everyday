@@ -42,3 +42,41 @@ export const findAllSubsets2 = (nums: number[]): number[][] => {
   }
   return subsets
 }
+
+// review practices //
+
+// The only difference with findSubsets1 is that the input array
+//  may contains duplicate elements.
+// Sort the nums[] first, so that the duplicate elements are next to
+//  each other and can be easily detected.
+// This time, at every level, if the nums[lv] === nums[lv-1] -> duplicate,
+//  we should not add it to all the existing answers, but only the
+//  answers of the previous level -- because nums[lv-1] have already
+//  presents itself in answers of the previous levels.
+// Thus, we need to keep track of the starting point of each level's
+//  answers in the queue
+//
+// Time: still bounded by O(N*2^N) -- because when all elements are unique,
+//  the number of nodes doubles in each level
+// Space: O(N*2^N)
+
+export const findAllSubsets2_r1 = (nums: number[]): number[][] => {
+  const result: number[][] = [[]]
+  nums.sort()
+  let lastLvStart = 0
+  for (let lv = 0; lv < nums.length; lv += 1) {
+    const lvNum = nums[lv]
+    const lvLen = result.length
+    let startingPoint = 0
+    if (lv > 0 && nums[lv] === nums[lv - 1]) {
+      startingPoint = lastLvStart
+    }
+    for (let i = startingPoint; i < lvLen; i += 1) {
+      const prevAns = result[i]
+      const newAns = [...prevAns, lvNum]
+      result.push(newAns)
+    }
+    lastLvStart = lvLen
+  }
+  return result
+}

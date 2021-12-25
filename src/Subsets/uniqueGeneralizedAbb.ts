@@ -50,3 +50,46 @@ export const getGeneralizedAbbreviations = (word: string): string[] => {
   }
   return Abbs.map((strArray) => strArray.join(''))
 }
+
+// review practices //
+
+// We process each letter at each level.
+// For each letter, we branch between leaving it (not abbreviate)
+//  or abbreviate it as number
+// BFS to generate all answers
+// Thus, in each level, we iterate through all the previous answers
+//  in the queue, adding the versions with the abbreviation of the current letter
+// (because the non-abbreviated version is already in the queue)
+// Return the queue at last
+// Tricky: in order to process the array easier (e.g. 'i18n', 18 in it), we split
+//  the word into array of letter and abbreviations and process on array instead.
+//
+// Time: the number of answers is O(2^N); to generate each answer, we need to copy
+//  the string and replace letter -- O(N)
+//  thus, the time is O(N * 2^N)
+// Space: bunded by the answer array -- O(N * 2^N)
+
+const abbrevateLetter = (word: string[], idx: number): string[] => {
+  const abb: string[] = [...word]
+  if (abb[idx - 1] === undefined || isNaN(parseInt(abb[idx - 1]))) {
+    abb[idx] = '1'
+  } else {
+    const prevNum = parseInt(abb[idx - 1])
+    abb.splice(idx - 1, 2, (prevNum + 1).toString())
+  }
+  return abb
+}
+
+export const getGeneralizedAbbreviations_r1 = (word: string): string[] => {
+  const result: string[][] = [word.split('')]
+  for (let lv = 0; lv < word.length; lv += 1) {
+    const lvLen = result.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = result[i]
+      // add the abbreviated version
+      const curAns = abbrevateLetter(prevAns, lv)
+      result.push(curAns)
+    }
+  }
+  return result.map((wordArray) => wordArray.join(''))
+}

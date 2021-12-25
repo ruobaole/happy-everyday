@@ -72,3 +72,63 @@ export const allUniqueBSTs = (n: number): TreeNode[] => {
   const memo: Map<[number, number], TreeNode[]> = new Map()
   return allUniqueBSTsHelper(1, n, memo) as TreeNode[]
 }
+
+//--- r1 ---//
+
+// At level 0, we branching between having each number within the range [0, n]
+//   being the root
+// At level 1, based on the parent node n0, we know that all possible left
+//  subtrees should be allUniqueBSTWithinRange(0, n0 - 1) and all ...
+//  right subtrees should be allUniqueBSTWithinRange(n0 + 1, n)
+// After getting the results fromt the left and right subtree, we should do
+//  N*N iteratings to get all answers of the current subtree;
+// Hence, we recursively finding all uniqueBSTsWithinRange(low, hight)
+// Base Case is when low > high, the only answer is null
+// Note that there will be overlapping subproblems -- why?
+//  problem(1, 5), problem(1, 4), problem(1, 3) all calls for problem(1, 2)
+// Thus, we use a memo map to keep record of the answers we've got
+//
+// Time: how many number of answers -- O(2^N) loosely (the same as the parentheses
+//  problem because we're to break the consecutive array from 0 to n into subarrays)
+//  the generating of each BST calls for O(N)
+//  thus, total time O(N * 2^N)
+// Space: O(N * 2^N)
+
+const allUniqueBSTsWithinRange = (
+  low: number,
+  high: number,
+  memo: Map<[number, number], TreeNode[]>
+): (TreeNode | null)[] => {
+  const results: (TreeNode | null)[] = []
+  if (low > high) {
+    results.push(null)
+    return results
+  }
+  if (memo.get([low, high]) !== undefined) {
+    return memo.get([low, high]) as (TreeNode | null)[]
+  }
+  for (let r = low; r <= high; r += 1) {
+    const leftBSTs = allUniqueBSTsWithinRange(low, r - 1, memo)
+    const rightBSTs = allUniqueBSTsWithinRange(r + 1, high, memo)
+    leftBSTs.forEach((lRoot) => {
+      rightBSTs.forEach((rRoot) => {
+        const root = new TreeNode(r)
+        root.left = lRoot
+        root.right = rRoot
+        results.push(root)
+      })
+    })
+  }
+  memo.set([low, high], results as TreeNode[])
+  return results
+}
+
+export const allUniqueBSTs_r1 = (n: number): TreeNode[] => {
+  const memo: Map<[number, number], TreeNode[]> = new Map()
+  if (n <= 0) {
+    return []
+  }
+  return allUniqueBSTsWithinRange(1, n, memo).filter(
+    (root) => root !== null
+  ) as TreeNode[]
+}

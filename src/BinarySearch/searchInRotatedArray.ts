@@ -64,3 +64,63 @@ export const searchRotatedArray = (arr: number[], key: number): number => {
   }
   return -1
 }
+
+//--- r1 ---//
+
+// Observe the array first.
+// arr[0] is either the smallest (rotation 0) or larger than arr[end]
+// The next element of the largest is the smallest element.
+// For each mid, it seperates the array into two parts:
+// 1. a sorted part (startNum <= midNum || midNum <= endNum)
+// 2. a non-sorted part
+// We can first tell which part mid is in by comparing midNum with
+//  starNum and endNum
+// Then, we know the searching direction --
+//  see if the key is in the range of the sorted part.
+//  if true, search in this part
+//  if not, search in the unsorted part
+// NOTE that when judging which part is the sorted part, if the array
+//  contains duplicate elements -- e.g. [2, 2, 2, 4, 5, 2, 2]
+//  when startNum === midNum === endNum
+//  we cannot tell which part is the sorted part
+//  in that case, we can only eliminate start and end in the next searching
+//  iteration.
+//
+// Time: O(logN) - however worst case O(N)
+// Space: O(1)
+
+export const searchRotatedArray_r1 = (arr: number[], key: number): number => {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === key) {
+      return mid
+    }
+    if (arr[start] === arr[mid] && arr[mid] === arr[end] && start !== end) {
+      // duplicate element and we cannot tell the parts
+      start += 1
+      end -= 1
+    } else if (arr[start] <= arr[mid]) {
+      // [start, mid] is the sorted part
+      if (key < arr[mid] && key >= arr[start]) {
+        // key is in the sorted part
+        end = mid - 1
+      } else {
+        // key is in the unsorted part
+        start = mid + 1
+      }
+    } else {
+      // [mid, end] is the sorted part
+      if (key <= arr[end] && key > arr[mid]) {
+        // key is in the sorted part
+        start = mid + 1
+      } else {
+        // key is in the unsorted part
+        end = mid - 1
+      }
+    }
+  }
+  return -1
+}

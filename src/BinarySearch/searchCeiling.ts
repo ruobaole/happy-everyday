@@ -41,3 +41,37 @@ export const findCeilingOfNumber = (arr: number[], key: number): number => {
   }
   return keyIdx
 }
+
+//--- r1 ---//
+
+// Binary Search. However the searching strategy is a little different
+// - if the midNum === key, we can return the mid directly
+// - however, if the midNUm > key, the ceiling we're looking for is either
+//  the mid, or some thing < mid --> we mark ceiling = mid temperarily and
+//  continue with end = mid - 1
+// In that case, the breaking condition is start > end, we won't end up in
+//  the infinite loop of start === mid === end
+//
+// Time: O(logN)
+// Space: O(1)
+
+export const findCeilingOfNumber_r1 = (arr: number[], key: number): number => {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  let ceiling = -1
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === key) {
+      ceiling = mid
+      break
+    }
+    if (arr[mid] < key) {
+      start = mid + 1
+    } else {
+      ceiling = mid
+      end = mid - 1
+    }
+  }
+  return ceiling
+}

@@ -56,3 +56,59 @@ export const countRotations = (arr: number[]): number => {
   }
   return -1
 }
+
+//--- r1 ---//
+
+// The rotation count is the index of the smallest element.
+// Hence, we are to find the index of the min.
+// For every mid we have, first check if it is the min. Several cases--
+//  1. mid - 1 < 0 && arr[mid] <= arr[mid+1]
+//  2. arr[mid] < arr[mid-1]
+//  (arr[mid] === arr[mid-1] -> all elements are the same, min should be the
+//   1st element)
+// If not, we know that mid should seperates the array into two parts--
+// - the sorted part (startNum <= midNum || midNum <= endNum)
+// - the unsorted part (the other part)
+// the min should be in the unsorted part
+// NOTE that in cases when rotation count is 0, e.g. [1, 2, 3, 4, 5, 5, 8]
+//  both parts are sorted parts -- we should search in the smaller part
+//  hence, we should make priority to check if [mid, end] is sorted part
+// Also noted when duplicate element occurs -- e.g. [2, 2, 3, 2, 2, 2]
+//  we cannot tell which part is sorted by comparing startNum, endNum and midNum
+//  -- in that case we can only know that the start and end are not the smallest
+//  element we're looking for
+//
+// Time: O(logN) - however worst case O(N)
+// Space: O(1)
+
+export const countRotations_r1 = (arr: number[]): number => {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  let minIdx = start
+  if (arr.length === 0) {
+    return minIdx
+  }
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (mid - 1 < 0 && arr[mid] <= arr[mid + 1]) {
+      minIdx = mid
+      break
+    }
+    if (arr[mid - 1] > arr[mid]) {
+      minIdx = mid
+      break
+    }
+    if (arr[start] === arr[mid] && arr[mid] === arr[end] && start !== end) {
+      start += 1
+      end -= 1
+    }
+    // check if the larger part is the sorted part first
+    else if (arr[mid] <= arr[end]) {
+      end = mid - 1
+    } else {
+      start = mid + 1
+    }
+  }
+  return minIdx
+}

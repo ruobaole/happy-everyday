@@ -33,3 +33,38 @@ export const searchNextLetter = (letters: string[], key: string): string => {
   // now start > end
   return letters[start % len]
 }
+
+//--- r1 ---//
+
+// Binary Search with the searching strategy a little different;
+// - init the nextLetter being letters[0] -- because if no letter in the
+//  array is greater than the key, the first letter is the next letter
+// while searching,
+//  - if letter[mid] <= key, the next letter is to the right of mid
+//  - if letter[mid] > key, because we're to find the smallest letter
+//   greater than key, we know that the nextLetter is either mid or to
+//   the left of mid --> hence, we mark mid temperarily, and continue
+//   searching in the left part of mid
+// Because we're eliminating mid in every iteration, we can safely set the breaking
+//  condition to be start > end
+//
+// Time: O(logN)
+// Space: O(1)
+
+export const searchNextLetter_r1 = (letters: string[], key: string): string => {
+  // assume that letters contains only alphabetic lowercase letters
+  let start = 0
+  let end = letters.length - 1
+  let mid = start
+  let nextIdx = 0
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (letters[mid] <= key) {
+      start = mid + 1
+    } else {
+      nextIdx = mid
+      end = mid - 1
+    }
+  }
+  return letters[nextIdx]
+}

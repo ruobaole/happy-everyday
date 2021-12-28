@@ -41,3 +41,52 @@ export const bitonicArrayMax = (arr: number[]): number => {
   }
   return max
 }
+
+//--- r1 ---//
+
+// In every iteration, for the mid, we can tell if the mid
+//  is in the ascending part of the bitonic array or the descending part
+//  by --
+// - if arr[mid + 1] is within the bound && arr[mid] <= arr[mid + 1]
+//   -> ascending part
+// - else, descending part
+// We can decide the searching direction based on whether the mid is in the
+//  ascending part or the descending part
+// - if ascending part, we know that the max should be to the right of mid,
+//  hence, start = mid + 1
+// - if descending part, we know that the max should be either mid or to the
+//  left of mid; thus, we can mark maxIdx = mid temperarily and continue with
+//  end = mid - 1
+// Note that their are chances that arr[start] === arr[mid] === arr[end] &&
+//  start !== end
+//  (e.g. [2, 2, 4, 5, 2, 2, 2, 2]) -- if that is the case, we cannot tell
+//  which part we're in by comparing arr[mid] with arr[mid + 1] --
+// hence, we should process this case first
+// in that case, we can only eliminating start and end by
+//   start += 1, end -= 1 --> cannot eliminating half of the array
+//
+// Time: O(logN) - however worst case O(N), if all elements are the same
+// Space: O(1)
+
+export const bitonicArrayMax_r1 = (arr: number[]): number => {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  let maxIdx = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    // check the tricky duplicate element case first
+    if (arr[start] === arr[mid] && arr[mid] === arr[end] && start !== end) {
+      start += 1
+      end -= 1
+    } else if (arr[mid + 1] !== undefined && arr[mid] <= arr[mid + 1]) {
+      // ascending part
+      start = mid + 1
+    } else {
+      // descending part
+      maxIdx = mid
+      end = mid - 1
+    }
+  }
+  return arr[maxIdx]
+}

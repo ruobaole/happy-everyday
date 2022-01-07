@@ -31,3 +31,31 @@ export const bitwiseComplement = (n: number): number => {
   // 3. get the complement
   return n ^ allBitsOne
 }
+
+//--- r1 ---//
+
+// Observe: n XOR nComplement = allOnes
+// (XOR n on both sides): n XOR n XOR nComplement = n XOR allOnes
+//  nComplement = n XOR allOnes
+// How do we get allOnes (allOnes and n has the same leftmost 1 bit,
+//  but allOnes have all bits as 1)?
+// We first count the position of the leftmost 1 bit in n.
+// - the answer is log(base2, n); the method is to divide n by 2
+//  iteratively until n is 0, count the times.
+// 2 ** (n + 1) - 1 is the allOnes
+//
+// Time: O(D) D is log(base2, n)
+// Space: O(1)
+
+export const bitwiseComplement_r1 = (n: number): number => {
+  // 1. get log(base2, n)
+  let num = n
+  let cnt = 0
+  while (num !== 0) {
+    num = num >> 1
+    cnt += 1
+  }
+  // 2. get allOnes
+  const allOnes = 2 ** (cnt + 1) - 1
+  return n ^ allOnes
+}

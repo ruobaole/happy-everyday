@@ -22,3 +22,30 @@ export const flipAndInvertImage = (matrix: number[][]): number[][] => {
   }
   return matrix1
 }
+
+//--- r1 ---//
+
+// Although the matrix contains only 1 and 0, it is stored in the array --
+// we have to traverse the matrix NxM anyway.
+// We iterate the matrix row by row, for each row, we flip the row and invert
+//  the flipped number
+// How to invert the flipped number? -- just XOR it with 1;
+// TRICY: if the row has odd length, don't forget to invert the middle one
+// Hence, while iterating, if even: e.g. (4 + 1) / 2 = 2; iterate 0, 1
+//  if odd: e.g. (3 + 1) / 2 = 2; iterate 0, 1 should be correct
+//
+// Time: O(N*M)
+// Space: O(N*M)
+
+export const flipAndInvertImage_r1 = (matrix: number[][]): number[][] => {
+  const resMat: number[][] = []
+  for (let r = 0; r < matrix.length; r += 1) {
+    resMat.push(new Array(matrix[r].length).fill(0))
+    for (let c = 0; c < Math.floor((matrix[r].length + 1) / 2); c += 1) {
+      const cFlip = matrix[r].length - 1 - c
+      resMat[r][c] = matrix[r][cFlip] ^ 1
+      resMat[r][cFlip] = matrix[r][c] ^ 1
+    }
+  }
+  return resMat
+}

@@ -41,3 +41,50 @@ export const findSingleNums = (nums: number[]): [number, number] => {
   })
   return [num1, num2]
 }
+
+//--- r1 ---//
+
+// We accumulately XOR all numbers, because A XOR A === 0 and A XOR 0 === A
+//  the result will be n1XORn2 -- the only two numbers that appeared once.
+// n1XORn2 will mark all the bits that n1 and n2 are different in 1s.
+// Then, we can find one bit in n1XORn2 that is 1, based on whether the bit is
+//  1 or 0, we can divided all numbers into two groups.
+// n1 and n2 can be seperated in the two group. If we XOR each group, we will
+//  cancel out all duplicate numbers and have n1 and n2.
+// How do we find the bit that is 1 in n1XORn2? -- perform n1XORn2 & 00001000
+//  if the result === 0, the bit is 0, otherwise is 1. we can find the rightmost
+//  1 bit by iterativly AND n1XORn2 with 1 shifted leftwards by 1 bit each time
+//  until the result is not 0;
+// How do we seperate the numbers by seeing if the bit is 1 or 0? we can AND the
+//  number with 00001000, to see if the result is 0
+//
+// Time: O(N + B), N is the length of nums[], B is the rightmost bit that is
+//  different in n1 and n2
+// Space: O(1)
+
+export const findSingleNums_r1 = (nums: number[]): [number, number] => {
+  // 1. find n1xn2
+  let n1xn2 = 0
+  nums.forEach((num) => {
+    n1xn2 ^= num
+  })
+  // 2. find the rightmost bit in that is different in n1 and n2
+  let rightmostbit = 1
+  while ((n1xn2 & rightmostbit) === 0) {
+    rightmostbit = rightmostbit << 1
+  }
+  // 3. iterate to seperate the numbers into 2 groups and xor
+  // each of the group
+  let n1 = 0
+  let n2 = 0
+  nums.forEach((num) => {
+    if ((num & rightmostbit) === 0) {
+      // the bit is 0
+      n1 ^= num
+    } else {
+      // the bit is 1
+      n2 ^= num
+    }
+  })
+  return [n1, n2]
+}

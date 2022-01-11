@@ -26,3 +26,31 @@ export const findKthSmallest = (nums: number[], k: number): number => {
   }
   return maxHeap.peek() === undefined ? NaN : (maxHeap.peek() as number)
 }
+
+//--- r1 ---//
+
+// We keep a maxHeap of size k -- store the k smallest numbers
+// While iterating, compare num with the top of the heap,
+//  if num < heapTop, we knew that num should be in the heap while
+// the top should be kicked out ('cause it is the largest)
+// At last, the top of the heap is the kth smallest
+//
+// Time: O(NlogK) -- becasue the size of the heap is K
+// Space: O(K)
+
+export const findKthSmallest_r1 = (nums: number[], k: number): number => {
+  // assume that nums is not empty and k > 0
+  const maxHeap = new Heap<number>((a, b) => a - b)
+  nums.forEach((num) => {
+    if (maxHeap.size() < k) {
+      maxHeap.add(num)
+    } else {
+      const top = maxHeap.peek() as number
+      if (num < top) {
+        maxHeap.removeRoot()
+        maxHeap.add(num)
+      }
+    }
+  })
+  return maxHeap.peek() as number
+}

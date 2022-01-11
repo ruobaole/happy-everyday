@@ -40,7 +40,6 @@ export const rearrangeString = (str: string): string => {
   })
   let prevChar: string | null = null
   let prevFreq = 0
-  const resultArray: string[] = []
   while (maxHeap.size() > 0) {
     // 1. greedily extract the most frequent one
     const cur = maxHeap.removeRoot() as CharFreq
@@ -52,7 +51,6 @@ export const rearrangeString = (str: string): string => {
       })
     }
     // 3. append to result
-    resultArray.push(cur.char)
     // 4. update prev
     prevChar = cur.char
     prevFreq = cur.freq
@@ -61,5 +59,58 @@ export const rearrangeString = (str: string): string => {
     // we have to put same letters adjacently
     return ''
   }
-  return resultArray.join('')
+}
+
+//--- r1 ---//
+
+// We should get the frequency of all chars, and iteratively pull out the
+//  one with the largest frequency and put it in the resulting string.
+// Hence, we need a maxHeap ordered by the chars' frequency.
+// Each time, we remove the root of the heap, decrease its frequency.
+// In order not to get the same chars next to each other, we should not put
+//  the popped element back in this iteration, but to temp mark it in prev
+//  and add it back in the next iteration, after pulling out the next root.
+// If when the heap is empty, prev is not empty -> we know that we have no
+//  choice but have to the same elements together -> return ""
+//
+// Time: O(N + NlogD) D is the distinct element cnt
+// Space: O(N)
+
+type CharPair = {
+  char: string
+  freq: number
+}
+
+export const rearrangeString_r1 = (str: string): string => {
+  const freqMap: Record<string, number> = {}
+  for (let i = 0; i < str.length; i += 1) {
+    if (freqMap[str[i]] === undefined) {
+      freqMap[str[i]] = 0
+    }
+    freqMap[str[i]] += 1
+  }
+  const maxHeap = new Heap<CharPair>((a, b) => a.freq - b.freq)
+  Object.keys(freqMap).forEach((char) => {
+    maxHeap.add({
+      char,
+      freq: freqMap[char]
+    })
+  })
+  const resArray: string[] = []
+  let prev: CharPair | null = null
+  while (maxHeap.size() > 0) {
+    const top = maxHeap.removeRoot() as CharPair
+    resArray.push(top.char)
+    top.freq -= 1
+    if (prev) {
+      maxHeap.add(prev)
+    }
+    if (top.freq > 0) {
+      prev = top
+    }
+  }
+  if (prev) {
+    return ''
+  }
+  return resArray.join('')
 }

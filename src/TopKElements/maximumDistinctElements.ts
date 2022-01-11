@@ -59,3 +59,63 @@ export const maxDistinctElements = (nums: number[], k: number): number => {
   }
   return cnt
 }
+
+//--- r1 ---//
+
+// The removing strategy should be, for all the elements that are not unique, in each
+//  iteration we should greedily remove the one with the smallest frequency --> trying
+//  to make it unique.
+// Thus, we first get the frequency of all elements in freqMap (hashmap), at the same
+//  time, counting the number of distinct element.
+// Then, push all elements which are not unique into the minHeap ordered by their freq.
+// In each iteration, get the root of the heap, removing its freq. until k reaches 0
+//  or the freq. reaches 1;
+// Iterating until k === 0 or minHeap is empty
+// If minHeap is empty and k > 0, we have no choice but to remove distinct elements
+//  distinctCnt -= k
+// NOTE that we can at most remove k elements, thus we do not need to push all into the
+//  minHeap. Keep a minHeap of size K should be ok.
+//
+// Time: O(N + KlogK)
+// Space: O(N)
+
+export const maxDistinctElements_r1 = (nums: number[], k: number): number => {
+  const freqMap: Record<number, number> = {}
+  nums.forEach((num) => {
+    if (freqMap[num] === undefined) {
+      freqMap[num] = 0
+    }
+    freqMap[num] += 1
+  })
+  // [value, freq]
+  const minHeap = new Heap<[number, number]>((a, b) => b[1] - a[1])
+  let distinctCnt = 0
+  Object.keys(freqMap).forEach((eleStr) => {
+    const ele = parseInt(eleStr, 10)
+    if (freqMap[ele] > 1) {
+      // keep the the size k minHeap
+      if (minHeap.size() < k) {
+        minHeap.add([ele, freqMap[ele]])
+      } else {
+        const topFreq = (minHeap.peek() as [number, number])[1]
+        if (freqMap[ele] < topFreq) {
+          minHeap.add([ele, freqMap[ele]])
+          minHeap.removeRoot()
+        }
+      }
+    } else {
+      distinctCnt += 1
+    }
+  })
+  while (k > 0 && minHeap.size() > 0) {
+    const top = minHeap.removeRoot() as [number, number]
+    k -= top[1] - 1
+    if (k >= 0) {
+      distinctCnt += 1
+    }
+  }
+  if (k > 0) {
+    distinctCnt -= k
+  }
+  return distinctCnt
+}

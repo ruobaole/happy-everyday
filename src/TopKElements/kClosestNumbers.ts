@@ -73,3 +73,73 @@ export const kClosestNumbers = (
   }
   return result
 }
+
+//--- r1 ---//
+
+// Note that the given array is sorted, thus we can find the closest
+//  element to X through binary search.
+// After finding the closest, we use two pointers -- left, right
+// Each time, compare the absolute difference of leftNum with X and
+//  rightNum with X; push in the smaller one, move the pointer;
+// In order to have the resulting array in sorted order, we use a deque
+//  to store the result.
+// If we're pushing leftNum, push at front; else, push at back
+//
+// Time: O(logN + K)
+// Space: O(K)
+
+const binarySearchClosest_r1 = (arr: number[], target: number): number => {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  let resIdx = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === target) {
+      return mid
+    }
+    if (arr[mid] < target) {
+      start = mid + 1
+      resIdx = mid
+    } else {
+      end = mid - 1
+      resIdx = end
+    }
+  }
+  return resIdx
+}
+
+export const kClosestNumbers_r1 = (
+  arr: number[],
+  K: number,
+  X: number
+): number[] => {
+  const result: number[] = []
+  if (arr.length === 0 || K <= 0) {
+    return result
+  }
+  const closestIdx = binarySearchClosest_r1(arr, X)
+  result.push(arr[closestIdx])
+  let left = closestIdx - 1
+  let right = closestIdx + 1
+  while (left >= 0 && right < arr.length && result.length < K) {
+    const leftDiff = Math.abs(arr[left] - X)
+    const rightDiff = Math.abs(arr[right] - X)
+    if (leftDiff < rightDiff) {
+      result.unshift(arr[left])
+      left -= 1
+    } else {
+      result.push(arr[right])
+      right += 1
+    }
+  }
+  while (left >= 0 && result.length < K) {
+    result.unshift(arr[left])
+    left -= 1
+  }
+  while (right < arr.length && result.length < K) {
+    result.push(arr[right])
+    right += 1
+  }
+  return result
+}

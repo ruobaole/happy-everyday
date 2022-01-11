@@ -41,3 +41,44 @@ export const findKFrequentNum = (nums: number[], k: number): number[] => {
   })
   return result
 }
+
+//--- r1 ---//
+
+// The only difference is that we compare the numbers by their frequencies not their
+//  values.
+// Thus, we first iterate the array to get number frequencies, store them in hashmap.
+// Then, keep a minHeap to store the k most frequent numbers. Iterate the array
+//   to update the minHeap.
+// -- each time, if num has frequency larger than the top of the freqMap, we should
+//  remove the root of the heap and add num in.
+//
+// Time: O(N + NlogK)
+// Space: O(N)
+
+export const findKFrequentNum_r1 = (nums: number[], k: number): number[] => {
+  const freqMap: Record<number, number> = {}
+  nums.forEach((num) => {
+    if (freqMap[num] === undefined) {
+      freqMap[num] = 0
+    }
+    freqMap[num] += 1
+  })
+  // [value, freq]
+  const minHeap = new Heap<[number, number]>((a, b) => b[1] - a[1])
+  nums.forEach((num) => {
+    if (minHeap.size() < k) {
+      minHeap.add([num, freqMap[num]])
+    } else {
+      const top = minHeap.peek() as [number, number]
+      if (freqMap[num] > top[1]) {
+        minHeap.removeRoot()
+        minHeap.add([num, freqMap[num]])
+      }
+    }
+  })
+  const result: number[] = []
+  while (minHeap.size() > 0) {
+    result.push((minHeap.removeRoot() as [number, number])[0])
+  }
+  return result
+}

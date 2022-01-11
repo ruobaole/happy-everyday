@@ -35,3 +35,40 @@ export const sumElements = (nums: number[], k1: number, k2: number): number => {
   }
   return sum
 }
+
+//--- r1 ---//
+
+// We can keep the smallest K2 -1 elements in a maxHeap of size (k2 - 1)
+// Then, pop out the top k2 - 1 - k1 elements, they should be the elements
+//  between the k1 smallest and k2 smallest (not including k1 and k2)
+// Return their sum
+//
+// Time: O((k2 - k1 - 1)logK2)
+// Space: O(k2)
+
+export const sumElements_r1 = (
+  nums: number[],
+  k1: number,
+  k2: number
+): number => {
+  const maxHeap = new Heap<number>((a, b) => a - b)
+  nums.forEach((num) => {
+    if (maxHeap.size() < k2 - 1) {
+      maxHeap.add(num)
+    } else {
+      const top = maxHeap.peek() as number
+      if (num < top) {
+        maxHeap.add(num)
+        maxHeap.removeRoot()
+      }
+    }
+  })
+
+  let sum = 0
+  for (let i = 0; i < k2 - k1 - 1; i += 1) {
+    if (maxHeap.size() > 0) {
+      sum += maxHeap.removeRoot() as number
+    }
+  }
+  return sum
+}

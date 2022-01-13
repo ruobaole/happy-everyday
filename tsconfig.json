@@ -5,7 +5,8 @@
     "lib": ["es6"],
     "allowJs": true,
     "outDir": "build",
-    "rootDir": "src",
+    // ts-node https://github.com/microsoft/TypeScript/issues/9858
+    // "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
@@ -16,6 +17,7 @@
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  // "include": ["src/**/*.ts"],
+  "include": ["src/index.ts"],
   "exclude": ["node_modules"]
 }

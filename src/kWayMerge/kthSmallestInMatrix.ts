@@ -13,6 +13,9 @@
 //  hence: O(klog2)
 // Space: O(1)
 
+// NOTE: we need to mark which cell has already been added to the heap
+//  to avoid adding dupliate cells
+
 import { Heap } from 'typescript-collections'
 
 export const kthSmallestInMat = (matrix: number[][], k: number): number => {
@@ -39,6 +42,47 @@ export const kthSmallestInMat = (matrix: number[][], k: number): number => {
     // 2. try to add the bottom neighbor
     if (row + 1 < matrix.length) {
       minHeap.add([matrix[row + 1][col], row + 1, col])
+    }
+  }
+  return kSmallest
+}
+
+//--- r1 ---//
+
+// Since each row of the matrix is sorted, we can see the matrix as
+//  a collection of N sorted lists (rows)
+// Hence, the problem is transformed to the problem of 'finding the k-th
+//  smallest element in M sorted lists'
+// Use a minHeap of size N to store the current head of each row.
+// Keep removing root of the heap while counting, when cnt === k, the root
+//  is the k-th smallest.
+//
+// Time: O(KlogN)
+// Space: O(N)
+
+export const kthSmallestInMat_r1 = (matrix: number[][], k: number): number => {
+  // Assume that the matrix is N * N and N > 0
+  // [value, row, col]
+  const minHeap = new Heap<[number, number, number]>((a, b) => b[0] - a[0])
+  const N = matrix.length
+  matrix.forEach((row, rowIdx) => {
+    if (row.length > 0) {
+      minHeap.add([row[0], rowIdx, 0])
+    }
+  })
+  let cnt = 0
+  let kSmallest = 0
+  while (minHeap.size() > 0) {
+    const top = minHeap.removeRoot() as [number, number, number]
+    kSmallest = top[0]
+    const rowIdx = top[1]
+    const colIdx = top[2]
+    cnt += 1
+    if (cnt === k) {
+      break
+    }
+    if (colIdx + 1 < N) {
+      minHeap.add([matrix[rowIdx][colIdx + 1], rowIdx, colIdx + 1])
     }
   }
   return kSmallest

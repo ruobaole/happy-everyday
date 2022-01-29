@@ -51,3 +51,87 @@ export const findKLargestPairs = (
 
   return result
 }
+
+//--- r1 ---//
+
+// Imagine if we put all pairs in a matrix, while row is idx in L1 and col
+//  being indices in L2.
+// The pair with the largest sum must be the top left corner.
+// The 2nd largest is either the top's right or bottom neighbor.
+// The 3rd largest is either the 2nd largest's right or bottom neighbor.
+// Hence, best-first-search with a maxHeap (ordered by the pair's sum)
+// We start by initial the heap with the top left corner.
+// In each iteration, pull out the root, add in its right and bottom neighbor
+//  if exists.
+// Keep counting, when cnt === k. The root should be the k-th largest.
+// NOTE that while adding in the right and bottom neighbor, we could add duplicate
+//  pairs.
+// To avoid that, we can use a hashset to store the [row, col] indices we've already
+//  added or pulled.
+// The size of this hashset is at most O(k + 2) at last -- because it marks pairs
+//  either pulled out from the heap (which is k) or still in the heap (which is 2)
+//
+// Time: O(klog2) -- the size of the heap is at most 2
+// Space: (k + 2 + 2) -- the size of the heap and hashset
+
+type Pair = {
+  n1: number
+  n2: number
+  sum: number
+  idx1: number
+  idx2: number
+}
+
+export const findKLargestPairs_r1 = (
+  nums1: number[],
+  nums2: number[],
+  k: number
+): number[][] => {
+  const result: number[][] = []
+  if (k <= 0 || nums1.length === 0 || nums2.length === 0) {
+    return result
+  }
+  const maxHeap = new Heap<Pair>((a, b) => a.sum - b.sum)
+  const memoSet = new Set<Pair>()
+  const topleft: Pair = {
+    n1: nums1[0],
+    n2: nums2[0],
+    sum: nums1[0] + nums2[0],
+    idx1: 0,
+    idx2: 0
+  }
+  maxHeap.add(topleft)
+  memoSet.add(topleft)
+  while (maxHeap.size() > 0 && result.length < k) {
+    const top = maxHeap.removeRoot() as Pair
+    // push into result
+    result.push([top.n1, top.n2])
+    // try add in right neighbor
+    if (top.idx1 + 1 < nums1.length) {
+      const right: Pair = {
+        n1: nums1[top.idx1 + 1],
+        n2: top.n2,
+        sum: nums1[top.idx1 + 1] + top.n2,
+        idx1: top.idx1 + 1,
+        idx2: top.idx2
+      }
+      if (!memoSet.has(right)) {
+        maxHeap.add(right)
+      }
+    }
+    // try add in bottom neighbor
+    if (top.idx2 + 1 < nums2.length) {
+      const bottom: Pair = {
+        n1: top.idx1,
+        n2: nums2[top.idx2 + 1],
+        sum: top.idx1 + nums2[top.idx2 + 1],
+        idx1: top.idx1,
+        idx2: top.idx2 + 1
+      }
+      if (!memoSet.has(bottom)) {
+        maxHeap.add(bottom)
+      }
+    }
+  }
+  return result
+}

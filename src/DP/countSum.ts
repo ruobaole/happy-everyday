@@ -35,3 +35,40 @@ export const countSubsets = (num: number[], sum: number): number => {
   }
   return DP[sum]
 }
+
+//--- r1 ---//
+
+// DP[i][s] -- the number of ways to construct subset using the first i elements
+//  to get a total sum of s;
+// Deduction:
+//  case1. not including the i-th element to the subset
+//  if DP[i-1][s] > 0, DP[i][s] = DP[i-1][s] ways of getting to DP[i][s]
+//  case2. including the i-th element to the subset
+//  if DP[i-1][s - num[i]] > 0; DP[i][s] += DP[i-1][s-num[i]]
+//  (DP[i-1][s-num[i]] more ways of getting the current position)
+// return DP[num.length][sum]
+// Base case:
+//  DP[i][0] = 1 -- because there should always be 1 way to get total sum of 0
+//  DP[0][s] = num[0] === s ? 1 : 0
+//
+// Time: O(N * SUM)
+// Space: O(SUM) -- reuse one row of array
+
+export const countSubsets_r1 = (num: number[], sum: number): number => {
+  const DP = new Array(sum + 1).fill(0)
+  for (let s = 0; s <= sum; s += 1) {
+    if (s === 0) {
+      DP[s] = 0
+    } else {
+      DP[s] = num[0] === s ? 1 : 0
+    }
+  }
+  for (let i = 1; i < num.length; i += 1) {
+    for (let s = sum; s >= 0; s -= 1) {
+      if (num[i] <= s) {
+        DP[s] += DP[s - num[i]]
+      }
+    }
+  }
+  return DP[sum]
+}

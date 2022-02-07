@@ -55,3 +55,63 @@ export const canPartition = (num: number[]): boolean => {
   }
   return DP[num.length - 1][S]
 }
+
+//--- r1 ---//
+
+// We first get the total sum of the array. And the problem would
+//  be transformed to -- if we can find a subset within the array
+//  that sumed to targetSum = totalSum / 2.
+// Thus, for every number, we have 2 choices --
+// 1. add it to the subset
+// 2. do not add it to the subset
+// If any of the choice give us the total sum of the targetSum we're
+//  looking for so far -- we can get a subset with the targetSum.
+// Define - DP[i][s] if we can find a subset within the first i elements
+//  that sum up to target s.
+// Deduction:
+//  - 1) including the i-th element
+//    DP[i][s] = DP[i-1][s - num[i]]
+//  - 2) not including the i-th element
+//    DP[i][s] = DP[i-1][s]
+// Base case:
+// 1. DP[0][s] = num[0] === s
+// 2. DP[i][0] = true -- because we can always get a subset with sum 0 by
+//  not having any element in the subset
+// SAVE SPACE: note that in calculating DP[i][s], we only need some cell in the
+//  last row to the left of the current one.
+// Hence, we can save space by reusing an array and filling in the array from right
+//  to left.
+//
+// Time: O(N * SUM)
+// Space: O(SUM)
+
+export const canPartition_r1 = (num: number[]): boolean => {
+  // Assume that all numbers are positive -- so that the sum could
+  // not be negative
+  if (num.length === 0) {
+    return true
+  }
+  const totalSum = num.reduce((sum, n) => sum + n)
+  if (totalSum % 2 !== 0) {
+    return false
+  }
+  const SUM = totalSum / 2
+  const DP = new Array(SUM + 1).fill(false)
+  for (let s = 0; s <= SUM; s += 1) {
+    if (s === 0) {
+      DP[s] = true
+    } else {
+      DP[s] = num[0] === s
+    }
+  }
+  for (let i = 0; i < num.length; i += 1) {
+    for (let s = SUM; s >= 0; s -= 1) {
+      // DP[s] - case1 -- not including the element
+      if (!DP[s] && num[i] <= s) {
+        // case2 - including the element
+        DP[s] = DP[s - num[i]]
+      }
+    }
+  }
+  return DP[SUM]
+}

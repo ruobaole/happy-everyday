@@ -17,4 +17,48 @@
 // Time: O(N * (s + totalSum))
 // Space: O(s + totalSum)
 
-export const findTargetSubsets = (num: number[], s: number): number => {}
+//--- r1 ---//
+
+// NOTE that we can always separate the numbers into 2 parts -- ones with + signs
+//  and ones with - signs.
+// Put parenthesis around all numbers with - signs, we can reform the equation into
+//  'the difference of 2 sums' ----
+// e.g. {+1-1-2+3} -> 1+3 - (2+2) === s
+// sum1 - sum2 = s
+// if we add sum1 + sum2 (which is totalSum) to both sides of the equation
+// sum1 - sum2 + sum1 + sum2 = s + totalSum
+// 2sum1 = s + totalSum
+// sum1 = (s + totalSum) / 2
+// We are looking for ways of getting subsets with targetSum = sum1
+// DP[i][sum] - number of ways of getting subsets with sum using the first i elements
+// Deduction:
+//  1. try not including the i-th element
+//  if DP[i-1][sum] > 0: DP[i][sum] = DP[i-1][sum], else DP[i][sum] = 0
+//  2. try including the i-th element:
+//  if DP[i][sum] += DP[i-1][sum-num[i]]
+// Return DP[num.length - 1][sum]
+// Base Case:
+// 1. DP[i][0] = 1
+// 2. DP[0][sum] = num[0] === sum ? 1 : 0
+//
+// Time: O(N * SUM)
+// Space: O(SUM)
+
+export const findTargetSubsets_r1 = (num: number[], s: number): number => {
+  // Assume that all numbers are positive
+  const totalSum = num.reduce((sum, n) => sum + n)
+  const targetSum = (s + totalSum) / 2
+  const DP = new Array(targetSum + 1).fill(0)
+  DP[0] = 1
+  for (let sum = 1; sum <= targetSum; sum += 1) {
+    DP[sum] = num[0] === sum ? 1 : 0
+  }
+  for (let i = 1; i < num.length; i += 1) {
+    for (let sum = targetSum; sum >= 0; sum -= 1) {
+      if (num[i] <= sum) {
+        DP[sum] += DP[sum - num[i]]
+      }
+    }
+  }
+  return DP[targetSum]
+}

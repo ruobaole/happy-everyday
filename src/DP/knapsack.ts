@@ -121,3 +121,60 @@ export const solveKnapsack2 = (
     .map(() => new Array(capacity + 1).fill(-1))
   return solveKnapsack2Helper(profits, weights, 0, capacity, memo)
 }
+
+//--- r1 ---//
+
+// For every item, we should branching between adding this item
+//  in the current subset or not. And return the one with the
+//  larger profit.
+// Define - problem(i, c) is the largest profit we gain from the first
+//  i items under the capacity c
+// - 1. including the i-th item
+//  problem(i, c) = problem(i - 1, c - weights[i]) + profits[i]
+// - 2. not including the i-th item
+//  problem(i) = problem(i-1, c)
+// As can be seen, the problem can be solved using bottom up DP.
+// Base Case:
+// 1. problem(i, 0) is 0 for all i
+// 2. problem(0, c) = weights[0] <= c ? profits[0] : 0
+// return problem(N, capacity)
+// NOTE: observe the deduction rule, to get DP[i][c], we
+//  only need to refer to cells in the last row and to the left
+//  of the current col.
+// Hence, we can save space to O(C) by using only one array as DP,
+//  and filling the DP array from right to left.
+//
+// Time: O(N * C)
+// Space: O(C)
+
+export const solveKnapsack_r1 = (
+  profits: number[],
+  weights: number[],
+  capacity: number
+): number => {
+  if (
+    profits.length === 0 ||
+    profits.length !== weights.length ||
+    capacity <= 0
+  ) {
+    return 0
+  }
+  const DP = new Array(capacity + 1)
+  // filling in the Base Case
+  for (let c = 0; c <= capacity; c += 1) {
+    DP[c] = weights[0] <= c ? profits[0] : 0
+  }
+  for (let i = 1; i < profits.length; i += 1) {
+    for (let c = capacity; c >= 0; c -= 1) {
+      // case: including the item
+      let case1 = 0
+      if (weights[i] <= c) {
+        case1 = DP[c - weights[i]] + profits[i]
+      }
+      if (case1 > DP[c]) {
+        DP[c] = case1
+      }
+    }
+  }
+  return DP[capacity]
+}

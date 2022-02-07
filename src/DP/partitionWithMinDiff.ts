@@ -118,3 +118,102 @@ export const minDiffPartition3 = (num: number[]): number => {
   }
   return Math.abs(totalSum - sum1 - sum1)
 }
+
+//--- r1 ---//
+
+// For every number, we branching between putting the number in subset1
+//  and putting it in subset2.
+// We need to mark the sum of the 2 subsets we have so far respectively.
+// Define the problem: problem(i, sum1, sum2) returns the min diff of partitioning
+//  the first i elements.
+// - case1. putting the element in subset1
+//  diff1 = problem(i+1, sum1 + num[i], sum2)
+// - case2. putting the element in subset2
+//  diff2 = problem(i+1, sum1, sum2 + num[i])
+// problem(i, sum1, sum2) = min(diff1, diff2)
+// The problem seems to be depended on 3 parameters, but actually not.
+// The total sum of the first i element is fixed, thus we can identify each problem
+//  once we're given i, sum1.
+// We can use DP[i][s] to memorize the answer to each subproblems -- top down DP
+//
+// Time: O(N * SUM) not more than the size of DP
+// Space: O(N * SUM)
+
+const helper1 = (
+  num: number[],
+  i: number,
+  sum1: number,
+  sum2: number,
+  DP: number[][]
+): number => {
+  if (i === num.length) {
+    // Base Case
+    return Math.abs(sum1 - sum2)
+  }
+  if (DP[i][sum1] !== -1) {
+    return DP[i][sum1]
+  }
+  const diff1 = helper1(num, i + 1, sum1 + num[i], sum2, DP)
+  const diff2 = helper1(num, i + 1, sum1, sum2 + num[i], DP)
+  const diff = Math.min(diff1, diff2)
+  DP[i][sum1] = diff
+  return diff
+}
+
+export const minDiffPartition_r1_DP1 = (num: number[]): number => {
+  if (num.length === 0) {
+    return 0
+  }
+  const totalSum = num.reduce((sum, n) => sum + n)
+  const DP = new Array(num.length)
+    .fill(-1)
+    .map(() => new Array(totalSum + 1).fill(-1))
+  return helper1(num, 0, 0, 0, DP)
+}
+
+// Bottom up DP
+// We first calculate the totalSum of the array.
+// To get the min difference, we're actually to to get a subset with sum
+//  equals to Math.floor(totalSum / 2)
+// Thus, problem becomes -- if there exisits a subset with sum equals to a targetSum.
+// However, we could end up unable to get such subset -- returns false.
+// In that case, we should traverse the last row of our DP[i][s] matrix, from
+//  right to left, trying to find the first cell that returns T.
+// The s now should be the sum closest to the target sum we can get. And we can use it
+//  as sum1, the final difference should be Math.abs(totalSum - sum1 - sum1)
+// Reusing a single array with length SUM+1 and filling in the array from right to left
+//  to save space.
+//
+// Time: O(N * SUM)
+// Space: O(SUM)
+
+export const minDiffPartition_r1_DP2 = (num: number[]): number => {
+  // Assuming that all numbers are positive
+  const totalSum = num.reduce((sum, n) => sum + n)
+  const targetSum = Math.floor(totalSum / 2)
+  if (targetSum === 0) {
+    return totalSum - targetSum - targetSum
+  }
+  const DP = new Array(targetSum + 1).fill(false)
+  for (let s = 0; s <= targetSum; s += 1) {
+    if (s === 0) {
+      DP[s] = true
+    } else {
+      DP[s] = num[0] === s
+    }
+  }
+
+  for (let i = 1; i < num.length; i += 1) {
+    for (let s = targetSum; s >= 0; s -= 1) {
+      if (!DP[s] && num[i] <= s) {
+        // try including the element
+        DP[s] = DP[s - num[i]]
+      }
+    }
+  }
+  let sum1 = targetSum
+  while (sum1 > 0 && !DP[sum1]) {
+    sum1 -= 1
+  }
+  return Math.abs(totalSum - sum1 - sum1)
+}

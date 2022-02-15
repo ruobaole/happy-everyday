@@ -94,3 +94,59 @@ export const longestSubstringWithKReplacements = (
   }
   return maxLen
 }
+
+//--- r2 ---//
+
+// Keep a record of the frequncy of the most frequent occured char
+//  in the window -- maxFreq
+// No matter what char it is, we know that the window is valid if
+//  windowLen - maxFreq <= k
+// We also need a hashmap charFreq to mark the char in the window and their
+//  frequencies so that we can update maxFreq.
+// 1. try expand the window
+// move right one step each time
+// update charFreq
+// update maxFreq if charFreq[char] > maxFreq
+// if windowLen - maxFreq > k, the window is invalid, we need to shrink it
+// 2. shrink the window to make it valid
+// move left
+// update charFreq and maxFreq
+// stop when the window is valid
+// 3. the window now is valid, update maxLen
+//
+// Time: O(N)
+// Space: O(N) -- maximum k elements in the hashmap if we do not clear those
+// with 0 frequencies
+
+export function longestSubstringWithKReplacements_r2(
+  str: string,
+  k: number
+): number {
+  if (k <= 0) {
+    return 0
+  }
+  let maxLen = 0
+  let maxFreq = 0
+  const charFreq: Record<string, number> = {}
+  let left = 0
+  for (let right = 0; right < str.length; right += 1) {
+    const rightC = str[right]
+    if (charFreq[rightC] === undefined) {
+      charFreq[rightC] = 0
+    }
+    charFreq[rightC] += 1
+    maxFreq = Math.max(maxFreq, charFreq[rightC])
+    while (right - left + 1 - maxFreq > k) {
+      // the window is invalid
+      const leftC = str[left]
+      charFreq[leftC] -= 1
+      // actually maxFreq will never be updated before the window
+      // is valid again
+      // Thus, we do not need to update maxFreq
+      maxFreq = Math.max(maxFreq, charFreq[leftC])
+      left += 1
+    }
+    maxLen = Math.max(maxLen, right - left + 1)
+  }
+  return maxLen
+}

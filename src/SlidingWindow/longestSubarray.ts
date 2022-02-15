@@ -1,3 +1,5 @@
+// https://www.educative.io/courses/grokking-the-coding-interview/YQQwQMWLx80
+//
 // Longest Substring with maximum K Distinct Characters (medium)
 // - Assuming, K > 0
 //
@@ -41,3 +43,50 @@
 //   }
 //   return maxLen
 // }
+
+//--- r2 ---//
+
+// Sliding window with window size unfixed
+// 1. expand the window
+// move right one step each time
+// use hashmap charFreq to mark the chars in the window and their frequencies.
+// update charFreq for str[right]
+// if Object.keys(charFreq).length > k --> the window is invalid --> try shrink the window
+// 2. shrink the window to valid
+// move left while Object.keys(charFreq).length > k (i.e. window is invalid)
+// update charFreq for str[left]
+//   if charFreq[str[left]] === 0, delete charFreq[str[left]]
+// 3. update maxLen after shinking the window (now the window is valid)
+//
+// Time: O(N)
+// Space: O(1)
+
+export function longestSubstringWithKDistinctChars_r2(
+  str: string,
+  k: number
+): number {
+  if (k <= 0 || str.length < k) {
+    return 0
+  }
+  const charFreq: Record<string, number> = {}
+  let maxLen = 0
+  let left = 0
+  for (let right = 0; right < str.length; right += 1) {
+    const rChar = str[right]
+    if (charFreq[rChar] === undefined) {
+      charFreq[rChar] = 0
+    }
+    charFreq[rChar] += 1
+    while (Object.keys(charFreq).length > k) {
+      // shrink the window to valid
+      const lChar = str[left]
+      charFreq[lChar] -= 1
+      if (charFreq[lChar] === 0) {
+        delete charFreq[lChar]
+      }
+      left += 1
+    }
+    maxLen = Math.max(right - left + 1, maxLen)
+  }
+  return maxLen
+}

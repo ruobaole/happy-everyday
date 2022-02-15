@@ -1,3 +1,5 @@
+// https://www.educative.io/courses/grokking-the-coding-interview/YMzBx1gE5EO
+//
 // Use hashmap charIdx {} to record the non-distinct character in the sustring [l, r]
 // 1. moving right of the window rightwards 1 step each time
 //    if string[right] is aready in charIdx, we know the substring contains duplicate char
@@ -61,6 +63,43 @@ export const nonRepeatSubstring = (str: string, k: number): number => {
     }
     charSeen[rightC] = r
     maxLen = Math.max(maxLen, r - l + 1)
+  }
+  return maxLen
+}
+
+//--- r2 ---//
+
+// Observe that, when we encounter a char which is already in the window,
+//  the only way to make the window once again valid is by moving the
+//  left to the char's first apperance's next idx;
+// Thus, we use a hashmap charSeen to mark the char in the window, and their
+//  first indices in the window
+// 1. try expand the window
+// move right one step each time
+// update charSeen
+// if the right char is already in the charSeen -- the window is invalid
+// 2. shrink the window by
+// moving left to charSeen[rightChar] + 1
+// update charSeen to left
+// 3. the window is now valid, update maxLen
+//
+// Time: O(N)
+// Space: O(N) -- the hashmap
+
+export function nonRepeatSubstring_r2(str: string): number {
+  const charSeen: Record<string, number> = {}
+  let maxLen = 0
+  let left = 0
+  for (let right = 0; right < str.length; right += 1) {
+    const rightC = str[right]
+    if (charSeen[rightC] === undefined) {
+      charSeen[rightC] = right
+    } else {
+      // the window is invalid, shrink to make it valid
+      left = charSeen[rightC] + 1
+      charSeen[rightC] = left
+    }
+    maxLen = Math.max(maxLen, right - left + 1)
   }
   return maxLen
 }

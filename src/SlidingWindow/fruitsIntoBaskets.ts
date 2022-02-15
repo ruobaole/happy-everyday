@@ -1,3 +1,5 @@
+// https://www.educative.io/courses/grokking-the-coding-interview/Bn2KLlOR0lQ
+//
 // Use hashmap baskets = {} to store fruits in baskets
 //  - key: letter, value: number of that letter
 //  - when value === 0, delete the pair
@@ -80,4 +82,49 @@ export const fruitsIntoBaskets = (fruits: string[]): number => {
     maxSum = Math.max(maxSum, r - l + 1)
   }
   return maxSum
+}
+
+//--- r2 ---//
+
+// The problem can be decribed as 'finding the longest subarray
+//   which contains no more than 2 distinct chars'
+// Sliding window with no fixed window size
+// 1. try expand the window
+// move right one step each time
+// use hashmap fruitFreq to record fruits within the window and their
+//   frequencies
+// update fruitFreq for fruits[right]
+// stop expanding when the window is invalid --
+// Object.keys(fruitFreq).length > 2
+// 2. shrink the window
+// move left while the window is invalid
+// update fruitFreq at fruits[left]
+// delete paris with 0 frequencies
+// 3. after the 2nd step, the window should be valid
+// update the maxCnt -- the window size
+//
+// Time: O(N)
+// Space: O(1)
+
+export function fruitsIntoBaskets_r2(fruits: string[]): number {
+  const fruitFreq: Record<string, number> = {}
+  let maxCnt = 0
+  let left = 0
+  for (let right = 0; right < fruits.length; right += 1) {
+    const rFruit = fruits[right]
+    if (fruitFreq[rFruit] === undefined) {
+      fruitFreq[rFruit] = 0
+    }
+    fruitFreq[rFruit] += 1
+    while (Object.keys(fruitFreq).length > 2) {
+      const lFruit = fruits[left]
+      fruitFreq[lFruit] -= 1
+      if (fruitFreq[lFruit] === 0) {
+        delete fruitFreq[lFruit]
+      }
+      left += 1
+    }
+    maxCnt = Math.max(right - left + 1, maxCnt)
+  }
+  return maxCnt
 }

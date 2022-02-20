@@ -136,3 +136,74 @@ export const findSmallestSubstringContaining = (
   }
   return str.slice(resL, resR + 1)
 }
+
+//--- r2 ---//
+
+// Sliding Window with unfixed window size
+// When should we try to shrink the window? - when the window already contains
+//  all the chars in the pattern. Because if the window does not have
+//  all the chars, it is impossible that a smaller subarray within it can
+//  have those.
+// When should we stop shrinking the window? - when the windowSize === pattenSize
+//  or the window is invalid (does not contain all the chars)
+// How do we determine if the window is valid?
+// - we need a hashmap toMatch to mark all the chars in the pattern and its frequencies.
+// - we decrease the char's frequency everytime a char in the window is matched
+//  ignore those are not in the map
+//  increase the frequency when a matched char leaves the window
+// - we also need an int matchedCnt to count the chars already matched in the window
+//  update matchedCnt when toMatched[char] reached 0 or increased to 1 from 0
+// - the window is valid when matchedCnt === Object.keys(toMatch).length
+//
+// Time: O(N + K)
+// Space: O(K)
+
+export const findSmallestSubstringContaining_r2 = (
+  str: string,
+  pattern: string
+): string => {
+  if (pattern.length > str.length) {
+    return ''
+  }
+  const toMatch: Record<string, number> = {}
+  for (let i = 0; i < pattern.length; i += 1) {
+    if (toMatch[pattern[i]] === undefined) {
+      toMatch[pattern[i]] = 0
+    }
+    toMatch[pattern[i]] += 1
+  }
+  const targetCnt = Object.keys(toMatch).length
+  let resLeft = 0
+  let resLen = Infinity
+  let left = 0
+  let matchedCnt = 0
+  for (let right = 0; right < str.length; right += 1) {
+    const rightC = str[right]
+    if (toMatch[rightC] !== undefined) {
+      toMatch[rightC] -= 1
+    }
+    if (toMatch[rightC] === 0) {
+      matchedCnt += 1
+    }
+    while (matchedCnt === targetCnt) {
+      // update the result when the window is valid
+      if (right - left + 1 < resLen) {
+        resLeft = left
+        resLen = right - left + 1
+      }
+      // try shrinking the window when the window is valid
+      const leftC = str[left]
+      if (toMatch[leftC] !== undefined) {
+        toMatch[leftC] += 1
+      }
+      if (toMatch[leftC] === 1) {
+        matchedCnt -= 1
+      }
+      left += 1
+    }
+  }
+  if (resLen === Infinity) {
+    return ''
+  }
+  return str.slice(resLeft, resLeft + resLen)
+}

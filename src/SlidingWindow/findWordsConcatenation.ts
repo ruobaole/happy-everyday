@@ -136,3 +136,71 @@ export const findWordsConcatenation = (
   }
   return result
 }
+
+//--- r2 ---//
+
+// Sliding window with fixed size
+// Because all the words have the same length, we can regard each word as a
+//  character -- thus, the problem is tranformed into 'find anagram' problem.
+// Use a hashmap toMatch to mark each word and its frequency in the words array
+// Also keep an int matchedCnt to count the unique word we have matched
+// We know that the window is valid when matchedCnt === Object.keys(toMatch).length
+// The window need to be fixed size, thus we shrink when window when the windowSize >
+//   targetSize
+// Also, we stop shrinking when the windowSize is valid
+// Now, when the windowSize is valid, check the matchedCnt to see if the window is a
+//  valid concatenate
+//
+// Time: O(N*W + K) -- W is the word length, we assume that to check if 2 words are the same
+//  needs O(W) time
+// Space: O(K) the hashmap's size
+
+export const findWordsConcatenation_r2 = (
+  str: string,
+  words: string[]
+): number[] => {
+  // Assume that words contains no duplicate words
+  const result: number[] = []
+  if (words.length === 0) {
+    return result
+  }
+  if (words[0].length === 0) {
+    return result
+  }
+  const W = words[0].length
+  const targetLen = words.length * W
+  const toMatch: Record<string, number> = {}
+  words.forEach((word) => {
+    if (toMatch[word] === undefined) {
+      toMatch[word] = 0
+    }
+    toMatch[word] += 1
+  })
+  let left = 0
+  let matchedCnt = 0
+  const targetCnt = Object.keys(toMatch).length
+  for (let right = 0; right < str.length - W + 1; right += 1) {
+    const rightW = str.slice(right, right + W)
+    if (toMatch[rightW] !== undefined) {
+      toMatch[rightW] -= 1
+    }
+    if (toMatch[rightW] === 0) {
+      matchedCnt += 1
+    }
+    while (right + W - 1 - left + 1 > targetLen) {
+      // shrink the window to keep the window size fixed
+      const leftW = str.slice(left, left + W)
+      if (toMatch[leftW] !== undefined) {
+        toMatch[leftW] += 1
+      }
+      if (toMatch[leftW] === 1) {
+        matchedCnt -= 1
+      }
+      left += 1
+    }
+    if (right + W - 1 - left + 1 === targetLen && matchedCnt === targetCnt) {
+      result.push(left)
+    }
+  }
+  return result
+}

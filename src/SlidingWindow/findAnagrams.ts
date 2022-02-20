@@ -58,3 +58,72 @@ export const findStringAnagrams = (str: string, pattern: string): number[] => {
   }
   return result
 }
+
+//--- r2 ---//
+
+// Sliding window with fixed window size
+// Use a hashmap toMatch to mark chars in the pattern and their frequencies.
+// Whenever a char is matched, toMatch[char] -= 1
+// Whenever a matched char is leaving the window, toMatch[char] += 1
+// We also keep an int -- matchedCnt, to count the unique chars we have matched
+// Update matchedCnt when toMatch[someChar] === 0
+// We know that the substring in the window is an anagram when
+// 1. windowSize === patternSize
+// 2. matchedCnt === toMatch's keys' length
+// Expand the window -- moving right
+// - update toMatch and matchedCnt
+// Shrink the window when the windowSize > pattern.length
+// move left
+// - update toMath and matchedCnt
+// Now if windowSize === pattern.length
+// check if matchedCnt === toMatch's keys' length
+// if true -> push left into the result
+//
+// Time: O(N + P) P is the length of pattern
+// Space: O(P) -- the hashmap
+
+export const findStringAnagrams_r2 = (
+  str: string,
+  pattern: string
+): number[] => {
+  const result: number[] = []
+  if (pattern.length > str.length) {
+    return result
+  }
+  const toMatch: Record<string, number> = {}
+  for (let i = 0; i < pattern.length; i += 1) {
+    if (toMatch[pattern[i]] === undefined) {
+      toMatch[pattern[i]] = 0
+    }
+    toMatch[pattern[i]] += 1
+  }
+  let left = 0
+  let matchedCnt = 0
+  for (let right = 0; right < str.length; right += 1) {
+    const rightC = str[right]
+    if (toMatch[rightC] !== undefined) {
+      toMatch[rightC] -= 1
+    }
+    if (toMatch[rightC] === 0) {
+      matchedCnt += 1
+    }
+    while (right - left + 1 > pattern.length) {
+      // shrink by moving left
+      const leftC = str[left]
+      if (toMatch[leftC] !== undefined) {
+        toMatch[leftC] += 1
+      }
+      if (toMatch[leftC] === 1) {
+        matchedCnt -= 1
+      }
+      left += 1
+    }
+    if (
+      right - left + 1 === pattern.length &&
+      matchedCnt === Object.keys(toMatch).length
+    ) {
+      result.push(left)
+    }
+  }
+  return result
+}

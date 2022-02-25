@@ -122,3 +122,60 @@ export const threeSumCloseTarget_r1 = (
   }
   return bestSum
 }
+
+//--- r2 ---//
+
+// The searching strategy should be the same with the "find three sum added to target"
+// However, this time, we need to keep a record of the current candidate triplet
+// Upate the candidate if we find a better one -- the sum is closer to target OR the same
+//   distance but with smaller sum
+//
+// Time: O(N^2)
+// Space: O(1)
+
+export const threeSumCloseTarget_r2 = (
+  arr: number[],
+  targetSum: number
+): number => {
+  // Assume that arr has at least 3 elements
+  let curSum = arr[0] + arr[1] + arr[2]
+  arr.sort()
+  let p0 = 0
+  let p1 = 0
+  let p2 = 0
+  for (p0 = 0; p0 < arr.length - 1; p0 += 1) {
+    // skip duplicate numbers when permulating the
+    // smallest element
+    if (p0 > 0 && arr[p0 - 1] === arr[p0]) {
+      continue
+    }
+    p1 = p0 + 1
+    p2 = arr.length - 1
+    while (p1 < p2) {
+      while (p1 - 1 > p0 && arr[p1] === arr[p1 - 1]) {
+        p1 += 1
+      }
+      while (p2 + 1 < arr.length - 1 && arr[p2] === arr[p2 + 1]) {
+        p2 -= 1
+      }
+      if (p1 < p2) {
+        const sum = arr[p0] + arr[p1] + arr[p2]
+        if (sum === targetSum) {
+          curSum = sum
+          return curSum
+        }
+        if (sum < targetSum) {
+          p1 += 1
+        } else {
+          p2 -= 1
+        }
+        const diff = Math.abs(sum - targetSum)
+        const curDiff = Math.abs(curSum - targetSum)
+        if (diff < curDiff || (diff === curDiff && sum < curSum)) {
+          curSum = sum
+        }
+      }
+    }
+  }
+  return curSum
+}

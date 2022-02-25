@@ -60,3 +60,31 @@ export const findPairWithTargetSum = (
   }
   return res
 }
+
+//--- r2 ---//
+
+// Since the given array is sorted, we could use 2 pointers comming from the start
+//  and end of the array to find the pair
+
+export function findPairWithTargetSum_r2(
+  arr: number[],
+  targetSum: number
+): number[] {
+  const result = [-1, -1]
+  let low = 0
+  let high = arr.length - 1
+  while (low < high) {
+    const sum = arr[low] + arr[high]
+    if (sum === targetSum) {
+      result[0] = low
+      result[1] = high
+      break
+    }
+    if (sum < targetSum) {
+      low += 1
+    } else {
+      high -= 1
+    }
+  }
+  return result
+}

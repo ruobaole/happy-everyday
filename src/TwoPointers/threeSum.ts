@@ -105,3 +105,56 @@ export const threeSum = (arr: number[]): number[][] => {
   }
   return result
 }
+
+//--- r2 ---//
+
+// For every triplet, there is a smallest number, a middle number and a
+//   largest number.
+// We can permulate all the triplets by permulating first the smallest, then the
+//   middle and then the largest number
+// 1. Sort the array
+// 2. iterating through the smallst number
+// 3. for every smallest number, use 2 pointers to search for pairs with target sum
+//  in the right part of the array
+// NOTE that, we need only the unique triplets. Thus, when iterating the smallest and
+//  searching the pairs, we should skip any duplicated numbers
+//
+// Time: O(N^2) - sorting takes O(NlogN), the searching for pairs takes O(N)
+// Space: number of triplets -- O(N^2)
+
+export const threeSum_r2 = (arr: number[]): number[][] => {
+  const result: number[][] = []
+  let p0 = 0
+  let p1 = 0
+  let p2 = 0
+  arr.sort((a, b) => a - b)
+  for (p0 = 0; p0 < arr.length - 2; p0 += 1) {
+    if (p0 > 0 && arr[p0] === arr[p0 - 1]) {
+      continue
+    }
+    const targetSum = 0 - arr[p0]
+    p1 = p0 + 1
+    p2 = arr.length - 1
+    while (p1 < p2) {
+      while (p1 > p0 + 1 && arr[p1] === arr[p1 - 1] && p1 < p2) {
+        p1 += 1
+      }
+      while (p2 < arr.length - 1 && arr[p2] === arr[p2 + 1] && p1 < p2) {
+        p2 -= 1
+      }
+      if (p1 < p2) {
+        const sum = arr[p1] + arr[p2]
+        if (sum === targetSum) {
+          result.push([arr[p0], arr[p1], arr[p2]])
+          p1 += 1
+          p2 -= 1
+        } else if (sum < targetSum) {
+          p1 += 1
+        } else {
+          p2 -= 1
+        }
+      }
+    }
+  }
+  return result
+}

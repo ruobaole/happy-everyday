@@ -74,3 +74,34 @@ export const dutchFlagSort_r1 = (arr: number[]): void => {
     }
   }
 }
+
+//--- r2 ---//
+
+// 3 parts -- 3 pointers as borders -- p0, p1, p2
+// [0, p0] -- all 0s
+// [p0+1, p1] -- all 1s
+// [p2+1, end] -- all 2s
+// [p1 + 1, p2] all elements need to be inspected
+// move p1 to inspect elements
+// if p1 points to 0, switch it to p0, move p0 and p1
+// if p1 points to 1, move p1
+// if p1 points to 2, switch it to p2, move p2
+
+export function dutchFlagSort_r2(arr: number[]) {
+  // assume that the arr contains only 0, 1, and 2s
+  let p0 = 0
+  let p1 = 0
+  let p2 = arr.length - 1
+  while (p1 <= p2) {
+    if (arr[p1] === 0) {
+      ;[arr[p0], arr[p1]] = [arr[p1], arr[p0]]
+      p0 += 1
+      p1 += 1
+    } else if (arr[p1] === 1) {
+      p1 += 1
+    } else {
+      ;[arr[p1], arr[p2]] = [arr[p2], arr[p1]]
+      p2 -= 1
+    }
+  }
+}

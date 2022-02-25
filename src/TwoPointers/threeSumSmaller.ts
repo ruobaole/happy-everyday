@@ -133,3 +133,81 @@ export const tripletsWithSmallerSum2_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+// First, sort the array so that we can permulate the triplets by
+//  iterating through the smallest element
+// When searching for pairs using 2 pointers, the searching strategy is
+//  as follows:
+// 1. if sum >= targetSum, we should move p2 -= 1
+// 2. if sum < targetSum, not only the pair is valid, all pairs with their
+//  right bounds smaller than the current p2 should be valid
+//  hence, we increase the count directly: count += p2 - p1
+//  then, move p1 += 1 to search for triplets with larger p1
+//
+// Time: O(N^2)
+// Space: O(1)
+//
+// Follow up. return all such triplets
+// when sum < target, we should iterate the right bounds within range
+// [p1+1, p2] to collect all triplets
+// Time: O(N^3) - however best case O(N^2), if no such triplets are found,
+//  then we don't have to iterate to collect answers
+
+export const tripletsWithSmallerSum_r2 = (
+  arr: number[],
+  target: number
+): number => {
+  let count = 0
+  arr.sort()
+  let p0 = 0
+  let p1 = 0
+  let p2 = 0
+  for (p0 = 0; p0 < arr.length - 2; p0 += 1) {
+    p1 = p0 + 1
+    p2 = arr.length - 1
+    while (p1 < p2) {
+      const sum = arr[p0] + arr[p1] + arr[p2]
+      if (sum >= target) {
+        p2 -= 1
+      } else {
+        count += p2 - p1
+        p1 += 1
+      }
+    }
+  }
+  return count
+}
+
+export const tripletsWithSmallerSum_r2_followup = (
+  arr: number[],
+  target: number
+): number[][] => {
+  const result: number[][] = []
+  arr.sort()
+  let p0 = 0
+  let p1 = 0
+  let p2 = 0
+
+  const pushResults = (p0: number, p1: number, p2: number) => {
+    while (p2 > p1) {
+      result.push([arr[p0], arr[p1], arr[p2]])
+      p2 -= 1
+    }
+  }
+
+  for (p0 = 0; p0 < arr.length - 2; p0 += 1) {
+    p1 = p0 + 1
+    p2 = arr.length - 1
+    while (p1 < p2) {
+      const sum = arr[p0] + arr[p1] + arr[p2]
+      if (sum >= target) {
+        p2 -= 1
+      } else {
+        pushResults(p0, p1, p2)
+        p1 += 1
+      }
+    }
+  }
+  return result
+}

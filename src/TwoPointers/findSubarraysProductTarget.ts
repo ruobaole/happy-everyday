@@ -88,3 +88,45 @@ export const findSubarraysWithProductTarget_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+
+// Basic Idea: sliding window to find every vaid subarray with max length
+//  then, within this subarray, all the sub-subarrays should be valid
+//  -- collect these answers
+// TRICKY, when collecting answers, we only need to collect all subarrays
+//  ending at the current right bound; Because the windows are generated
+//  from left to right
+// Time: O(N^3) -- sliding window O(N), iterate all sub-subarrays ending at
+//  the current window's right bound O(N), copying every array O(N)
+
+export const findSubarraysWithProductTarget_r2 = (
+  arr: number[],
+  target: number
+): number[][] => {
+  const result: number[][] = []
+
+  const pushResults = (left: number, right: number) => {
+    const ans = []
+    while (right >= left) {
+      ans.push(arr[right])
+      result.push([...ans])
+      right -= 1
+    }
+  }
+
+  let left = 0
+  let product = 1
+  for (let right = 0; right < arr.length; right += 1) {
+    const rightN = arr[right]
+    product *= rightN
+    while (product >= target) {
+      // shrinking the window to make it valid
+      const leftN = arr[left]
+      product /= leftN
+      left += 1
+    }
+    pushResults(left, right)
+  }
+  return result
+}

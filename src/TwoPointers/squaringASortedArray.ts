@@ -33,3 +33,44 @@ export const squaringArray = (arr: number[]): number[] => {
   }
   return result
 }
+
+//--- r2 ---//
+
+// 1. Iterate to find the first non-negative element
+// 2. use two pointers p1, p2; p1 is inited at the last negative element;
+//  p2 is inited at the first non-negative element
+// 3. at each step, compare the 2 pointers and move the one with the smaller
+//  squares in priority
+//
+// Time: O(N)
+
+export function squaringArray_r2(arr: number[]): number[] {
+  const result: number[] = []
+  // p2 - the first non-negative
+  let p2 = 0
+  while (arr[p2] < 0 && p2 < arr.length) {
+    p2 += 1
+  }
+  // p1 - the last negative
+  let p1 = p2 - 1
+  while (p2 < arr.length && p1 >= 0) {
+    const n1 = arr[p1]
+    const n2 = arr[p2]
+    if (n1 ** 2 <= n2 ** 2) {
+      result.push(n1 ** 2)
+      p1 -= 1
+    } else {
+      result.push(n2 ** 2)
+      p2 += 1
+    }
+  }
+  while (p2 < arr.length) {
+    result.push(arr[p2] ** 2)
+    p2 += 1
+  }
+  while (p1 >= 0) {
+    result.push(arr[p1] ** 2)
+    p1 -= 1
+  }
+  return result
+}

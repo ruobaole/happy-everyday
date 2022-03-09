@@ -143,3 +143,63 @@ export const shortestWindowSort2_r1 = (arr: number[]): number => {
   }
   return right - left + 1
 }
+
+//--- r2 ---//
+//
+// Observe that the array can be divided into 3 parts:
+//  left(ascending) - mid(unsorted) - right(ascending)
+// We need to find the left and right boundary of the mid part
+// Basic steps are:
+// 1. find the 2 intial boundary
+// 2. expand the 2 boundaries by comparing with the min and max of the mid part
+// In detail
+// 1. Find left0 boundary
+// traverse from left to right, the first unsorted element, the element before it is
+//   left0
+// Notice case when left0 === arr.length - 1 -> then the array is sorted return 0
+// Find right0 boundary
+// traverse from right to left, the first unsorted element, its right neighbor is right0
+// Also notice case when right0 === arr.length - 1 -> the array is sorted in descending order
+//  return the length of the array
+// 2. Expand the boundary
+// Expand left0
+//   - find the min of all elements to the right of left0
+//   - from left0, travel leftwards, includes all elements that are > min
+// Expand right0
+//   - find the max of all elements to the right of right0
+//   - move right0 rightwards, includes all elements that are < max
+// return right - left + 1
+//
+// Time: O(N)
+
+export function shortestWindowSort2_r2(arr: number[]): number {
+  let left = 0
+  let right = arr.length - 1
+  while (left < arr.length - 1 && arr[left] <= arr[left + 1]) {
+    left += 1
+  }
+  if (left === arr.length - 1) {
+    // the array is sorted
+    return 0
+  }
+  while (right > 0 && arr[right - 1] < arr[right]) {
+    right -= 1
+  }
+  if (right === arr.length - 1) {
+    // array is sorted in reverse order
+    return arr.length
+  }
+  let min = Number.MAX_SAFE_INTEGER
+  let max = Number.MIN_SAFE_INTEGER
+  for (let i = left + 1; i < right; i += 1) {
+    min = Math.min(min, arr[i])
+    max = Math.max(max, arr[i])
+  }
+  while (left > 0 && arr[left - 1] > min) {
+    left -= 1
+  }
+  while (right < arr.length - 1 && arr[right + 1] < max) {
+    right += 1
+  }
+  return right - left + 1
+}

@@ -94,3 +94,55 @@ export const backspaceCompare_r1 = (str1: string, str2: string): boolean => {
   }
   return false
 }
+
+//--- r2 ---//
+// 2 pointers -- p1 points at str1, p2 points at str2, to compare the strings
+//   char by char
+// 2 pointers start from the end of the string
+// in each iteration, the 2 pointers should move to its next valid place
+// how to find the next valid place?
+// move p while counting the number of consecutive #s
+// everytime a non-sharp char is encountered, we should skip the char and cnt -= 1
+// stop when: p === 0 or cnt === 0
+//
+// Time: O(N)
+// Space: O(1)
+
+export function backspaceCompare_r2(str1: string, str2: string): boolean {
+  let p1 = str1.length - 1
+  let p2 = str2.length - 1
+  while (p1 >= 0 && p2 >= 0) {
+    p1 = findNext(str1, p1)
+    p2 = findNext(str2, p2)
+    if (p1 < 0 || p2 < 0) {
+      break
+    }
+    if (str1[p1] !== str2[p2]) {
+      break
+    }
+    p1 -= 1
+    p2 -= 1
+  }
+  if (p1 < 0 && p2 < 0) {
+    return true
+  }
+  return false
+}
+
+function findNext(str: string, p: number): number {
+  // assume that p >= 0 && p < str.length
+  let cnt = 0
+  while (p >= 0) {
+    if (str[p] === '#') {
+      cnt += 1
+      p -= 1
+    } else if (cnt > 0) {
+      cnt -= 1
+      p -= 1
+    }
+    if (cnt === 0) {
+      break
+    }
+  }
+  return p
+}

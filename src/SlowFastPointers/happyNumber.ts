@@ -52,3 +52,32 @@ export const isHappyNumber_r1 = (num: number): boolean => {
   }
   return slow === 1
 }
+
+//--- r2 ---//
+//
+// Hare-and-Tortoise
+// Repeatedly calculate the next and nextnext number
+// if at any time
+// nextnext === 1 -> happy number
+// if at any time
+// next === nextnext && next !== 1 -> stuck in a non-one cycle -> unhappy
+
+export function isHappyNumber_r2(num: number): boolean {
+  let slow = num
+  let fast = getNextNum_r2(num)
+  while (slow !== fast) {
+    slow = getNextNum_r2(slow)
+    fast = getNextNum_r2(getNextNum_r2(fast))
+  }
+  return slow === 1
+}
+
+function getNextNum_r2(num: number): number {
+  let res = 0
+  while (num > 0) {
+    const digit = num % 10
+    res += digit ** 2
+    num = Math.floor(num / 10)
+  }
+  return res
+}

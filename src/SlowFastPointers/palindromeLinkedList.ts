@@ -59,3 +59,58 @@ export const isPalindromeLinkedList = (head: Node | null): boolean => {
   }
   return isPalin
 }
+
+//--- r2 ---//
+//
+// 1. use slow/fast pointers to find the middle of the list
+//   e.g if even length: 1 -> 2 -> 3 -> 4 -> null, mid should be 3
+//   the mid then seperate the list into 2 parts
+// 2. reverse the 2nd half headed by mid
+// 3. compare the 1st half and the reversed 2nd half node by node
+//   if all nodes matched until one list is empty -- is palindrome
+// 4. reverse back the 2nd half
+//
+// Time: O(N)
+// Space: O(1)
+
+export function isPalindromeLinkedList_r2(head: Node | null): boolean {
+  if (head === null || head.next === null) {
+    return true
+  }
+  let slow = head
+  let fast = head
+  while (fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+  }
+  const mid = slow
+  const reversedHead = reverseList(mid)
+  // compare the 1st half with the reversed 2nd half
+  let isPalin = true
+  let p1 = head
+  let p2 = reversedHead
+  while (p1 && p2) {
+    if (p1.value !== p2.value) {
+      isPalin = false
+      break
+    }
+    p1 = p1.next
+    p2 = p2.next
+  }
+  // reverse back the 2nd half
+  reverseList(reversedHead)
+  return isPalin
+}
+
+function reverseList(head: Node | null): Node | null {
+  let prev: Node | null = null
+  let cur = head
+  let tmp = head
+  while (cur) {
+    tmp = cur.next
+    cur.next = prev
+    prev = cur
+    cur = tmp
+  }
+  return prev
+}

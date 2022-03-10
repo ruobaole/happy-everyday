@@ -72,8 +72,8 @@ export const reorderLinkedList = (head: Node | null): Node | null => {
 // Time: O(N)
 
 const reverseLinkedList_r1 = (head: Node | null): Node | null => {
-  let prev = null
-  let
+  let p1 = null
+  let p2 = head
   while (p2) {
     const tmp = p2.next
     p2.next = p1
@@ -110,4 +110,59 @@ export const reorderLinkedList_r1 = (head: Node | null) => {
   if (first) {
     first.next = null
   }
+}
+
+//--- r2 ---//
+//
+// 1. use slow/fast pointers to find the middle of the list, break
+//  the list into 2 halves
+//  e.g. 1 -> 2 -> 3 -> 4 to [1 -> 2] and [3 -> 4]
+//  1 -> 2 -> 3 -> 4 -> 5 to [1 -> 2] and [3 -> 4 -> 5]
+// 2. reverse the 2nd half
+// 3. start reordering the 2 halves
+//  Note that now, the tail of the 1st half points to mid
+//  thus, we should break when p2 === null || p1 === mid
+//  and at last, have mid.next = null
+//
+// Time: O(N)
+// Space: O(1)
+
+export function reorderLinkedList_r2(head: Node | null): void {
+  if (!head || !head.next) {
+    return
+  }
+  let slow = head
+  let fast = head
+  while (fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+  }
+  const mid = slow
+  const reversedHead = reverseList(mid)
+  let p1 = head
+  let p2 = reversedHead
+  let tmp1 = p1
+  let tmp2 = p2
+  while (p1 !== mid && p2) {
+    tmp1 = p1.next
+    tmp2 = p2.next
+    p1.next = p2
+    p2.next = tmp1
+    p1 = tmp1
+    p2 = tmp2
+  }
+  mid.next = null
+}
+
+function reverseList(head: Node | null): Node | null {
+  let prev: Node | null = null
+  let cur = head
+  let tmp = head
+  while (cur) {
+    tmp = cur.next
+    cur.next = prev
+    prev = cur
+    cur = tmp
+  }
+  return prev
 }

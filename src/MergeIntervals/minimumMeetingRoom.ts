@@ -91,3 +91,37 @@ export const minMeetingRooms_r1 = (meetings: Interval[]): number => {
   })
   return num
 }
+
+//--- r2 ---//
+//
+// The problem calls us to find the max number of meetings overlapping with
+//  each other at all time;
+// Say that, we now have a set of meetings overlapping with each other; now comes
+//  a new meeting, how do we get the overlapping meetings after considering the new meeting?
+// We need to pop out all meetings that ends before the new meeting starts, and insert in the
+//  new meeting to the overlapping heap;
+// Thus, we need a minHeap ordered by the ending time of meetings, so that we can easily popping
+//  out all that ends before the new meeting starts;
+// Order the meetings by their start time;
+// Iterate in order, keep a minHeap; update the minHeap to the overlapping meetings of all time
+// Update the roomCnt with minHeap's max size of all time
+//
+// Time: O(NlogN) - the heap's size is at most N; the sorting takes O(NlogN)
+// Space: O(N) - the max size of the heap
+
+export function minMeetingRooms_r2(meetings: Interval[]): number {
+  const minHeap = new Heap<Interval>((a, b) => b.end - a.end)
+  meetings.sort((a, b) => a.start - b.start)
+  let cnt = 0
+  for (let i = 0; i < meetings.length; i += 1) {
+    while (
+      minHeap.size() > 0 &&
+      (minHeap.peek() as Interval).end <= meetings[i].start
+    ) {
+      minHeap.removeRoot()
+    }
+    minHeap.add(meetings[i])
+    cnt = Math.max(cnt, minHeap.size())
+  }
+  return cnt
+}

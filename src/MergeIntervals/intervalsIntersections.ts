@@ -87,3 +87,47 @@ export const findIntersections_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+//
+// 2 list of 'some sort of objects' (Interval) sorted in order -- should lead us
+//  to 2 pointers;
+// 2 pointers -- i1 and i2, points to the respective 2 array
+// 1. compare the 2 intervals, if the 2 overlap, get their intersection;
+//  move the one that ends earlier to its next interval and continue the comparison
+//  (because the one that ends ealier, could have further intervals that still overlaps with
+//   the one in the other array)
+// 2. if not overlapping; we should also move the one that ends earlier;
+//   the reason are the same
+//
+// Time: O(N + M)
+// Space: O(N + M)
+
+export function findIntersections_r2(
+  intervalsA: Interval[],
+  intervalsB: Interval[]
+): Interval[] {
+  const result: Interval[] = []
+  let i1 = 0
+  let i2 = 0
+  while (i1 < intervalsA.length && i2 < intervalsB.length) {
+    const a = intervalsA[i1]
+    const b = intervalsB[i2]
+    const isOverlapping =
+      (a.start <= b.start && a.end >= b.start) ||
+      (b.start <= a.start && b.end >= a.start)
+    if (isOverlapping) {
+      result.push(
+        new Interval(Math.max(a.start, b.start), Math.min(a.end, b.end))
+      )
+    }
+    // move the one that ends earlier
+    if (a.end < b.end) {
+      i1 += 1
+    } else {
+      i2 += 1
+    }
+  }
+  // stop when one array gets to the end
+  return result
+}

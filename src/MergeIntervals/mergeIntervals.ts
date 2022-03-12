@@ -108,3 +108,56 @@ export const mergeIntervals_r1 = (intervals: Interval[]): Interval[] => {
   result.push(last)
   return result
 }
+
+//--- r2 ---//
+//
+// Answer the following questions:
+// 1. How to determine if 2 intervals overlap with each other?
+//  1) sort them by their starting time
+//  2) if itv2.start <= itv1.end
+// 2. what is the merged interval?
+//  start = itv1.start
+//  end = max(itv1.end, itv2.end)
+// 3. is the merged interval follow the same rule in 1
+//  yes - mergedItv.start < itv3.start
+// 4. what if the 2 do not overlap?
+//  curItv = itv2
+//  does not break rule 1 and 2
+// Now, we have the solution
+// use result[] to store the merged intervals
+// init result with [itv1]
+// in each iteration, compare result[result.length - 1] with the next itv
+//   in the array;
+// - if the 2 overlaps, pop the top from result, merge with the head in intervals[],
+//  push the merged into result
+// - if do not overlap, push the head of intervals[] to result
+//
+// Time: O(NlogN) - N iterations to compare and merge; however the sorting takes O(NlogN)
+// Space: O(N) - the result space as well as the space taken by sorting
+
+export function mergeIntervals_r2(intervals: Interval[]): Interval[] {
+  const result: Interval[] = []
+  if (intervals.length === 0) {
+    return result
+  }
+  intervals.sort((a, b) => a.start - b.start)
+  result.push(intervals[0])
+  let cur = intervals[0]
+  let next = cur
+  for (let i = 1; i < intervals.length; i += 1) {
+    cur = result[result.length - 1]
+    next = intervals[i]
+    if (next.start <= cur.end) {
+      // if the 2 overlap
+      result.pop()
+      result.push(new Interval(cur.start, Math.max(cur.end, next.end)))
+    } else {
+      // if the 2 do not overlap
+      result.push(next)
+    }
+  }
+  return result
+}
+
+// Similar Problem - find if any 2 intervals overlaps
+// The same strategy, break when any cur overlaps with next

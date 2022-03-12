@@ -102,3 +102,47 @@ export const insertInterval_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+//
+// 1. iterate the array and push all those that cannot be overlapped with
+//  the given one into the result[]
+// 2. rolling the snowball
+//  having newInterval as the merged snowball, merge all intervals that can
+//  be merged into the snowball
+//  break until the one from the interval does not overlap with the snowball
+//  push the snowball to result[]
+// 3. iterate and insert all the rest in the array to result[]
+//
+// Time: O(N)
+// Space: O(N)
+
+export function insertInterval_r2(
+  intervals: Interval[],
+  newInterval: Interval
+): Interval[] {
+  const result: Interval[] = []
+  // 1. push all that cannot be merged into result
+  let i = 0
+  while (i < intervals.length && intervals[i].end < newInterval.start) {
+    result.push(intervals[i])
+    i += 1
+  }
+  // 2. rolling the snowball
+  let snowball = newInterval
+  while (i < intervals.length && snowball.end >= intervals[i].start) {
+    const merged = new Interval(
+      Math.min(snowball.start, intervals[i].start),
+      Math.max(snowball.end, intervals[i].end)
+    )
+    snowball = merged
+    i += 1
+  }
+  result.push(snowball)
+  // 3. push in all the rest
+  while (i < intervals.length) {
+    result.push(intervals[i])
+    i += 1
+  }
+  return result
+}

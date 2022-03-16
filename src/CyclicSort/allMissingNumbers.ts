@@ -59,3 +59,35 @@ export const findAllMissingNumbers_r1 = (nums: number[]): number[] => {
   })
   return missing
 }
+
+//--- r2 ---//
+//
+// an array of length n with its elements in range [1, n]
+// meaning that we can place the number in its correct place num - 1
+// Iterate to examine each number's correct place, if it is not placed with
+//  the number, switch to have it sitted with the correct number;
+// Ignore those that are already sitted with the correct number
+// At last, iterate the array, collect all those that are not sitted with the
+//  correct number
+//
+// Time: O(N)
+// Space: O(N) - at most N - 1 missing numbers
+
+export function findAllMissingNumbers_r2(nums: number[]): number[] {
+  const missing: number[] = []
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (nums[correctIdx] !== nums[i]) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j + 1) {
+      missing.push(j + 1)
+    }
+  }
+  return missing
+}

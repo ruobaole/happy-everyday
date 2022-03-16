@@ -92,7 +92,7 @@ export const findDuplicates_r1 = (nums: number[]): number => {
   let intersect1 = -1
   while (intersect1 === -1) {
     slow = nums[nums[slow]]
-    fast = nums[nums[nums[slow]]]
+    fast = nums[nums[nums[fast]]]
     if (slow === fast) {
       intersect1 = slow
     }
@@ -101,6 +101,50 @@ export const findDuplicates_r1 = (nums: number[]): number => {
   // the distance from intersect1 to the starting point
   let p1 = 0
   let p2 = intersect1
+  while (p1 !== p2) {
+    p1 = nums[nums[p1]]
+    p2 = nums[nums[p2]]
+  }
+  return nums[p1]
+}
+
+//--- r2 ---//
+//
+// In short, the solution with no modification to the array is --
+// From the 0 index of the array, go to place nums[0], and furtherly go
+//  to the index nums[i]; we should end up in a loop, the starting point
+//  of the loop should be sitted with the duplicate number;
+// Thus, we can use slow/fast pointers inited at 0 to find the staring point
+//  of the loop;
+// How to prove this?
+// Imagine we're trapped within a loop that is NOT started with the duplciate number
+// There're 2 possible scenarios --
+// 1) from somewhere, we arrived at a number that is correctly placed, then we ended up
+//  in this place;
+//  however in that case, the number must be the duplicate one
+// 2) all the numbers are missplaced, we ended up in a loop where the numbers takes each other's
+//  place;
+//  but if the loops closed within itself, how can we get to this loop?
+//  only through a duplicate number -- we enter the loop from the duplicate number
+// Thus, the starting point of the loop must be the duplicate number
+//
+// Time: O(N)
+
+export function findDuplicates_r2(nums: number[]): number {
+  let slow = 0
+  let fast = 0
+  let intersect0 = -1
+  while (intersect0 === -1) {
+    slow = nums[nums[slow]]
+    fast = nums[nums[nums[fast]]]
+    if (slow === fast) {
+      intersect0 = slow
+    }
+  }
+  // the distance from 0 to starting point ===
+  // the distance from intersect0 to starting point
+  let p1 = 0
+  let p2 = intersect0
   while (p1 !== p2) {
     p1 = nums[nums[p1]]
     p2 = nums[nums[p2]]

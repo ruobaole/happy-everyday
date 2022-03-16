@@ -51,3 +51,32 @@ export const cyclicSort_r1 = (nums: number[]): number[] => {
   }
   return nums
 }
+
+//--- r2 ---//
+//
+// n numbers within range [1, n]
+// -- meaning that each number should have its correct place -- num - 1
+//  and all numbers have its correct place;
+// Iterate the array, for every number, examine its correct place, see if
+//  it is placed with the correct element
+// If not, swap the number with the number in its correct place, continue examine
+//  the number in the current place;
+// If yes, continue to the next number;
+//
+// Time: O(N) -- each element is examined at most twice -- one when we iterate to the
+//  number; one when the number is in some other number's correct place and we have to
+//  swap;
+// Space: O(1)
+
+export function cyclicSort_r2(nums: number[]): void {
+  let i = 0
+  while (i < nums.length) {
+    const num = nums[i]
+    const correctIdx = num - 1
+    if (nums[correctIdx] === num) {
+      i += 1
+    } else {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    }
+  }
+}

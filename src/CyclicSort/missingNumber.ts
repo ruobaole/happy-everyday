@@ -36,7 +36,7 @@ export const findMissingNumber = (nums: number[]): number => {
 // an array of length n, with its elements in range [0, n] -- one number is missing
 // 1. iterate the array to put elements in its correct place -- nums[i]
 //  n will not be able to be placed -- ignore n -- skip nums[i] if nums[i] === n
-// 2. at last, there will be two posible cases:
+// 2. at last, there will be two possible cases:
 //  1) if n exists, the missing number is in range [0, n-1] -- n should be sitting
 //  at the missing number's spot
 //  2) if n doesn't exist -- all numbers should be on its correct place -- missing n
@@ -61,4 +61,42 @@ export const findMissingNumber_r1 = (nums: number[]): number => {
     }
   }
   return nums.length
+}
+
+//--- r2 ---//
+//
+// an array of n length contaning numbers in range [0, n]
+// -- meaning that numbers have their correct place -- num;
+// there're 2 cases:
+// 1) one element cannot be placed in its correct place, because
+//  num === n
+// 2) all elements can be placed in its correct place, the missing
+//  number is n
+// Thus, we iterate the array and place each nums[i] in its correct place
+//  if (nums[i] !== n) -- i.e. skip n
+// At last, iterate the array again and check if there exists element that
+//  is not in its correct place.
+// If true, the place is the missing number
+// else, n is the missing number
+//
+// Time: O(N)
+// Space: O(1)
+
+export function findMissingNumber_r2(nums: number[]): number {
+  const N = nums.length
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i]
+    if (correctIdx < N && nums[correctIdx] !== nums[i]) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j) {
+      return j
+    }
+  }
+  return N
 }

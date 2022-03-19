@@ -112,3 +112,58 @@ export const firstKMissingPositiveNumber_r1 = (
   }
   return missingNumber
 }
+
+//--- r2 ---//
+//
+// 1. Cyclic sort to put all the numbers within range [1, n] to its
+//  correct indices -- num - 1
+// 2. Iterate the array and collect all those that are sit with missplaced
+//  numbers -- these are the missing numbers within range [1, n]
+// 3. if the count of the missing numbers now < k; we still need to cnt to
+//  get missing numbers > n;
+//  thus, we need a hashset -- seen to record the positive numbers we have encountered
+//  while iterating; these are the missplaced however positive numbers in the array;
+//  cnt from n+1, if a number is not in the seen set, it is a missing number;
+//  NOTE that we do not need to push numbers to seen if the missing numbers' cnt
+//  gets to k
+//
+// Time: O(N)
+// Space: O(N) - the size of the hash set
+
+export function smallestKMissingPosNumbers(
+  nums: number[],
+  k: number
+): number[] {
+  const missing: number[] = []
+  if (k <= 0) {
+    return missing
+  }
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (
+      correctIdx >= 0 &&
+      correctIdx < nums.length &&
+      nums[correctIdx] !== nums[i]
+    ) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  const seen = new Set<number>()
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j + 1 && missing.length < k) {
+      missing.push(j + 1)
+      seen.add(nums[j])
+    }
+  }
+  let cur = nums.length + 1
+  while (missing.length < k) {
+    if (!seen.has(cur)) {
+      missing.push(cur)
+    }
+    cur += 1
+  }
+  return missing
+}

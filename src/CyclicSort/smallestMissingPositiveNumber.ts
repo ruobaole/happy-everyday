@@ -74,3 +74,36 @@ export const findFirstMissingPositiveNumber_r1 = (nums: number[]): number => {
   }
   return nums.length + 1
 }
+
+//--- r2 ---//
+//
+// Put all numbers within range [1, n] in their correct place; ignore
+//  those that are < 1 and out of bound;
+// At last, the first missplaced index is the smallest missing number;
+// If all of the numbers are correctly placed, n+1 will be the smallest
+//  missing number;
+//
+// Time: O(N)
+// Space: O(1)
+
+export function smallestMissingPosNumber(nums: number[]): number {
+  let i = 0
+  while (i < nums.length) {
+    const correctIdx = nums[i] - 1
+    if (
+      correctIdx >= 0 &&
+      correctIdx < nums.length &&
+      nums[correctIdx] !== nums[i]
+    ) {
+      ;[nums[correctIdx], nums[i]] = [nums[i], nums[correctIdx]]
+    } else {
+      i += 1
+    }
+  }
+  for (let j = 0; j < nums.length; j += 1) {
+    if (nums[j] !== j + 1) {
+      return (j += 1)
+    }
+  }
+  return nums.length + 1
+}

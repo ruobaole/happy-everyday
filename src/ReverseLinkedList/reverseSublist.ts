@@ -15,7 +15,7 @@
 //
 // Time: O(N)
 
-import { Node } from '@src/SlowFastPointers/startOfLinkedListCycle'
+import { Node } from './../SlowFastPointers/startOfLinkedListCycle'
 
 export const reverseSublist = (
   head: Node | null,
@@ -208,6 +208,78 @@ export const reverseSublist_r1 = (
   }
   if (sublistTail) {
     sublistTail.next = thirdPartHead
+  }
+  return head
+}
+
+//--- r2 ---//
+//
+// The list can be divided into 3 parts:
+// part1. the first p-1 nodes
+// part2. the reversed sublist, from the p-th node, count q - p + 1 nodes to
+//  the q-th node
+// part3. the rest nodes
+// The following nodes are the nodes we're interested in --
+// - the first part's tail
+// - the sublist's head and tail (also the reversed sublist's head and tail)
+// - the third part's head
+// The process is as follows:
+// 1. init prev = null, cur = head; count p - 1 nodes
+//  now prev points to the first part's tail while
+//  cur points to the sublist's head
+// 2. before reversing, save the first part's tail and
+//  the sublist's head -- because we know that after the
+//  reversal, it will be the sublist's tail
+//  then reverse the sublist
+//  now, prev points to the sublist's new head
+//  cur points to the 3rd parts' head
+// 3. link the parts
+//  NOTE here, we need to check if the first part's tail === null, i.e.
+//  the first part is empty -- if so, we need to update the head;
+//
+// Time: O(N)
+// Space: O(1)
+
+export function reverseSublist_r2(
+  head: Node | null,
+  p: number,
+  q: number
+): Node | null {
+  let prev: Node | null = null
+  let cur = head
+  let tmp = cur
+  let i = 1
+  // 1. skip the first part
+  while (i <= p - 1 && cur !== null) {
+    tmp = cur.next
+    prev = cur
+    cur = cur.next
+    i += 1
+  }
+  const firstPartTail = prev
+  const secondPartTail = cur
+
+  // 2. reverse the sublist
+  i = 1
+  prev = null
+  while (i <= q - p + 1 && cur !== null) {
+    tmp = cur.next
+    cur.next = prev
+    prev = cur
+    cur = tmp
+    i += 1
+  }
+  const thirdPartHead = cur
+  const secondPartHead = prev
+  // 3. link the parts
+  if (firstPartTail !== null) {
+    firstPartTail.next = secondPartHead
+  }
+  if (secondPartTail !== null) {
+    secondPartTail.next = thirdPartHead
+  }
+  if (firstPartTail === null) {
+    return secondPartHead
   }
   return head
 }

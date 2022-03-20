@@ -4,7 +4,7 @@
 // when moving the sublist in front, below are the nodes we are insterested in:
 //  - sublist's prev; sublist's tail
 
-import { Node } from '@src/SlowFastPointers/startOfLinkedListCycle'
+import { Node } from './../SlowFastPointers/startOfLinkedListCycle'
 
 export const rotateRightKNodes = (
   head: Node | null,
@@ -92,4 +92,48 @@ export const rotateRightKNodes_r1 = (
     firstPartTail.next = null
   }
   return sublistHead
+}
+
+//--- r2 ---//
+//
+// 1. get the list's length - n and preprocess k = k % n
+// 2. count k nodes from the end - sublist2
+// 3. link sublist2's head with the original head
+//   sublist1's tail links to null
+// These're the nodes we're interested in --
+// - originial head
+// - first part tail
+// - second part head
+// - second part tail
+
+export function rightRotateK(head: Node | null, k: number): Node | null {
+  // 1. get the list's length
+  let n = 0
+  let cur = head
+  while (head) {
+    n += 1
+    cur = cur.next
+  }
+  k = k % n
+  // 2. get the second part
+  const dummyHead = new Node(-1)
+  dummyHead.next = head
+  let prev = dummyHead
+  cur = head
+  let secondTail = cur
+  while (k > 1 && secondTail) {
+    secondTail = secondTail.next
+    k -= 1
+  }
+  while (secondTail && secondTail.next) {
+    secondTail = secondTail.next
+    cur = cur.next
+    prev = prev.next
+  }
+  const firstTail = prev
+  const secondHead = cur
+  // 3. link the second part back with the first part
+  secondTail.next = head
+  firstTail.next = null
+  return secondHead
 }

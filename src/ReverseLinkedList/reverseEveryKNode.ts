@@ -17,7 +17,7 @@
 // NOTE that k should > 1
 // Time: O(N) -- each node is visited only once
 
-import { Node } from '@src/SlowFastPointers/startOfLinkedListCycle'
+import { Node } from './../SlowFastPointers/startOfLinkedListCycle'
 
 export const reverseEveryKNode = (
   head: Node | null,
@@ -100,6 +100,58 @@ export const reverseEveryKNode_r1 = (
     }
     sublistTail.next = cur
     prev = sublistTail
+  }
+  return head
+}
+
+//--- r2 ---//
+//
+// We just keep counting k and reverse the k-length sublist.
+// In order to link the sublist, there're several nodes we need to
+//  keep record of --
+// 1. the previous part's tail
+// 2. the head of the sublist
+// 3. the tail of the sublist
+// The process would be
+// 1. init prev = null, cur = head
+//  prevTail = prev
+//  sublistTail = cur (because after reversing, this will be the tail)
+// 2. reverse while counting k
+//  after the reversing,
+//  sublistHead = prev
+// 3. link the parts
+//  NOTE that if prevTail === null, we should update the head to sublistHead
+// 4. get ready for the next iteration
+//  set prev = sublistTail; cur is now at the next sublist's head (before reverse)
+//  reset k and iterate
+
+export function reverseEveryK(head: Node | null, k: number): Node | null {
+  let prev: Node | null = null
+  let cur = head
+  let tmp = cur
+  let prevTail = prev
+  let sublistTail = cur
+  while (cur !== null) {
+    // reverse sublist
+    prevTail = prev
+    sublistTail = cur
+    let i = 0
+    while (i < k && cur !== null) {
+      tmp = cur.next
+      cur.next = prev
+      prev = cur
+      cur = tmp
+      i += 1
+    }
+    // link the prev part with the reversed sublist
+    if (prevTail) {
+      prevTail.next = prev
+    } else {
+      head = prev
+    }
+    // ready for the next k node's reversal
+    prev = sublistTail
+    sublistTail.next = cur
   }
   return head
 }

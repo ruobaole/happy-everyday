@@ -79,3 +79,37 @@ export const minDepthOfTree_r1 = (root: TreeNode | null): number => {
   }
   return level
 }
+
+//--- r2 ---//
+//
+// BFS to traverse the tree while counting the level;
+// Break the traversing when we encounter a node without children;
+//
+// Time: O(N)
+// Space: O(1)
+
+export function minDepthOfTree_r2(root: TreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+  const queue: TreeNode[] = []
+  queue.push(root)
+  let level = 0
+  while (queue.length > 0) {
+    level += 1
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift()
+      if (!node.left && !node.right) {
+        return level
+      }
+      if (node.left) {
+        queue.push(node.left)
+      }
+      if (node.right) {
+        queue.push(node.right)
+      }
+    }
+  }
+  return level
+}

@@ -71,3 +71,37 @@ export const connectAllSuccessors_r1 = (
     }
   }
 }
+
+//--- r2 ---//
+//
+// BFS the tree with a queue
+// At each level, after popping put a node, connect it with the
+//  next peek of the queue;
+// In this way, we can easily connect the level's last node with next
+//  level's first node;
+// NOTE that we need to push in the children first and then connect, or
+//  we could end up no nodes to connect at the end of a level;
+//
+// Time :O(N)
+
+export function connectAllSuccessors_r2(root: TreeNodeWithNext | null): void {
+  if (root === null) {
+    return
+  }
+  const queue: TreeNodeWithNext[] = []
+  queue.push(root)
+  while (queue.length > 0) {
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift()
+      if (node.left) {
+        queue.push(node.left)
+      }
+      if (node.right) {
+        queue.push(node.right)
+      }
+      const next = queue[0]
+      node.next = next || null
+    }
+  }
+}

@@ -79,3 +79,46 @@ export const reverseLevelOrderTraverse_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+//
+// BFS with a queue to collect results in every level;
+// In each level, while popping the level's nodes from the
+//  queue, pushing them into the levelResult array
+// After processing the level, pushing the levelResult into the
+//  final result array
+// NOTE: we need the result array to be 'last level at first', thus
+//  we need to append each level's result in to the front;
+// we need a deque-like data structure for result[] so that the append
+//  to front is O(1)
+//
+// Time: O(N) - in js, we use unshift() to append to front to an array --
+//  assume the operation is O(1)
+// Space: O(N)
+
+export function reverseLevelOrderTraverse_r2(
+  root: TreeNode | null
+): number[][] {
+  const result: number[][] = []
+  if (root === null) {
+    return result
+  }
+  const queue: TreeNode[] = []
+  queue.push(root)
+  while (queue.length > 0) {
+    const lvLen = queue.length
+    const lvRes: number[] = []
+    for (let i = 0; i < lvLen; i += 1) {
+      const node = queue.shift() as TreeNode
+      lvRes.push(node.value)
+      if (node.left) {
+        queue.push(node.left)
+      }
+      if (node.right) {
+        queue.push(node.right)
+      }
+    }
+    result.unshift(lvRes)
+  }
+  return result
+}

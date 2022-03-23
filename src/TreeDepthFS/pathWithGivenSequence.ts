@@ -12,7 +12,7 @@
 // Time: worst case O(N) if for every path, only the last does not match
 // Space: O(logN) bounded by the callstack, if do not count the sequence
 
-import { TreeNode } from '@src/TreeBreadthFS/TreeNode'
+import { TreeNode } from './../TreeBreadthFS/TreeNode'
 
 const pathOfSequenceHelper = (
   root: TreeNode | null,
@@ -82,4 +82,42 @@ export const pathOfSequence_r1 = (
   sequence: number[]
 ): boolean => {
   return pathOfSequence_r1Helper(root, sequence, 0)
+}
+
+//--- r2 ---//
+//
+// DFS while passing in the sequence and the number representing the level;
+// In each subtree,
+//  first check if root.value match with sequence[level]; if not, return false
+//  directly
+//  if true, furtherly match the result of the sequence in its left and right
+//  subtrees; return true if any of the result is true
+// Base case is the null node, return true if the level number >= sequence.length
+//
+// Time: worst case O(N) - because we have to check every nodes; best case O(logN) -
+//  find the sequence in the first try
+// Space: O(logN)
+
+export function pathSeqExists(
+  root: TreeNode | null,
+  sequence: number[]
+): boolean {
+  return pathSeqExistsHelper(root, sequence, 0)
+}
+
+function pathSeqExistsHelper(
+  root: TreeNode | null,
+  sequence: number[],
+  level: number
+): boolean {
+  if (root === null) {
+    return level >= sequence.length
+  }
+  if (root.value !== sequence[level]) {
+    return false
+  }
+  return (
+    pathSeqExistsHelper(root.left, sequence, level + 1) ||
+    pathSeqExistsHelper(root.right, sequence, level + 1)
+  )
 }

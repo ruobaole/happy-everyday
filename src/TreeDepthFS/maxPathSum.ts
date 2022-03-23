@@ -15,7 +15,7 @@
 // Time: O(N) - each node is visited once and the operations are O(1)
 // Space: O(logN) - callstack
 
-import { TreeNode } from '@src/TreeBreadthFS/TreeNode'
+import { TreeNode } from './../TreeBreadthFS/TreeNode'
 
 const findMaxPathSumHelper = (root: TreeNode): [number, number] => {
   // return [maxPathSum, globalMaxSum]
@@ -85,4 +85,44 @@ const findMaxPathSum_r1Helper = (root: TreeNode | null): [number, number] => {
 export const findMaxPathSum_r1 = (root: TreeNode | null): number => {
   const result = findMaxPathSum_r1Helper(root)
   return result[0]
+}
+
+//--- r2 ---//
+//
+// For each subtree, the max path sum would be --
+// max(leftSum, rightSum, curSum)
+// How to get curSum?
+// - define leftPath as the max sum of path ending at the left child
+// - curSum = max(leftPath, 0) + max(rightPath, 0) + root.value
+// Hence, we should return 2 things in the recursion of each subtree --
+// - curPath -- the max sum for path ending at root
+// - curSum -- the max sum for path within the subtree
+// How to get curPath?
+// - curPath = max(leftPath, rightPath, 0) + root.value
+// Base Case:
+// we can have base case in null node -- because paths are not necessarily
+//  from leaf to leaf
+// return [-Infinity, -Infinity] at null nodes -- we should not return 0, because
+//  the nodes value can be negative
+//
+// Time: O(N) -- all nodes have to be examined
+// Space: O(logN)
+
+export function maxPathSum(root: TreeNode | null): number {
+  const [path, sum] = maxPathSumHelper(root)
+  return sum
+}
+
+function maxPathSumHelper(root: TreeNode | null): [number, number] {
+  let path = -Infinity
+  let sum = -Infinity
+  if (root === null) {
+    return [path, sum]
+  }
+  const [leftPath, leftSum] = maxPathSumHelper(root.left)
+  const [rightPath, rightSum] = maxPathSumHelper(root.right)
+  path = Math.max(Math.max(leftPath, rightPath), 0) + root.value
+  const curSum = Math.max(leftPath, 0) + Math.max(rightPath, 0) + root.value
+  sum = Math.max(Math.max(leftSum, rightSum), curSum)
+  return [path, sum]
 }

@@ -17,7 +17,7 @@
 // Time: each node is visited once -- worst case when we have to update longestDiameter at ever
 //   subtree -- copy of the arrary takes at most O(2logN) -- O(NlogN)
 
-import { TreeNode } from '@src/TreeBreadthFS/TreeNode'
+import { TreeNode } from './../TreeBreadthFS/TreeNode'
 
 const treeDiameterHelper = (root: TreeNode): [number[], number[]] => {
   if (root.left === null && root.right === null) {
@@ -98,4 +98,58 @@ export const treeDiameter_r1 = (root: TreeNode | null): number => {
   }
   const result = treeDiameter_r1Helper(root)
   return result[0]
+}
+
+//--- r2 ---//
+//
+// For each subtree, we need to compare the longest diameter in its left subtree,
+//  the longest diameter in its right subtree, and the longest diameter passing through
+//  the root
+// Thus, we need 2 things from each subtree --
+// - the longest path starting at the root
+// - the longest diameter whitin this subtree
+// we can return the 2 numbers in an array
+// Base Case:
+// - each diameter should have its 2 ends in leaf nodes -- null nodes do not count
+// thus, the base case should be the leaf node. return [1, 1]
+//
+// Time: O(N)
+// Space: O(logN)
+
+export function treeDiameter_r2(root: TreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+  const [path, dia] = treeDiameter_r2Helper(root)
+  return dia
+}
+
+function treeDiameter_r2Helper(root: TreeNode): [number, number] {
+  let path = 1
+  let dia = 1
+  if (root.left === null && root.right === null) {
+    return [path, dia]
+  }
+  let pathLeft = 0
+  let pathRight = 0
+  let diaLeft = 0
+  let diaRight = 0
+  if (root.left) {
+    ;[pathLeft, diaLeft] = treeDiameter_r2Helper(root.left)
+  }
+  if (root.right) {
+    ;[pathRight, diaRight] = treeDiameter_r2Helper(root.right)
+  }
+  path = Math.max(pathLeft, pathRight) + 1
+  let thisDia = 1
+  if (!root.left) {
+    thisDia = diaRight
+  }
+  if (!root.right) {
+    thisDia = diaLeft
+  } else {
+    thisDia = pathLeft + pathRight + 1
+  }
+  dia = Math.max(thisDia, Math.max(diaLeft, diaRight))
+  return [path, dia]
 }

@@ -15,7 +15,7 @@
 // Space: call stack - O(logN), the space of the result list is the largest when every path
 // is viable -- number of leaf: O((N+1)/2), length of path: O(N) -- O(NlogN)
 
-import { TreeNode } from '@src/TreeBreadthFS/TreeNode'
+import { TreeNode } from './../TreeBreadthFS/TreeNode'
 
 const findAllPathsHelper = (
   root: TreeNode | null,
@@ -157,4 +157,59 @@ export const findAllPaths_r1 = (
   }
   findAllPaths_r1Helper(root, sum, [], result)
   return result
+}
+
+//--- r2 ---//
+//
+// DFS the tree while passing in
+// - the current target sum
+// - the array representing the current path
+// - the result array representing all the paths found
+// Base case is the null node:
+// - now if targetSum === 0, we should push the current path into
+//  the result paths array
+// - CAUTION: if we regard null nodes as base case, we should only process
+//  one of the children if both the subtrees are null -- or we would endup
+//  having duplicate paths in the result
+// For every subtree, we should:
+// - update targetSum
+// - push the current root.value to the current path
+// recursively processing both left and right subtrees
+// Don't forget to recorver the state of cur path before returning
+//
+// Time: O(N)
+// Space: O(logN)
+
+export function findAllPathsWithSum(
+  root: TreeNode | null,
+  sum: number
+): number[][] {
+  const curPath: number[] = []
+  const result: number[][] = []
+  findAllPathsWithSumHelper(root, sum, curPath, result)
+  return result
+}
+
+function findAllPathsWithSumHelper(
+  root: TreeNode | null,
+  sum: number,
+  curPath: number[],
+  result: number[][]
+): void {
+  if (root === null) {
+    if (sum === 0) {
+      result.push([...curPath])
+    }
+    return
+  }
+  curPath.push(root.value)
+
+  findAllPathsWithSumHelper(root.left, sum - root.value, curPath, result)
+  // IMPROTANT: if both the children are null - we should only process one of
+  //  the children -- or we would end up 2 identical paths
+  if (!(root.left === null && root.right === null)) {
+    findAllPathsWithSumHelper(root.right, sum - root.value, curPath, result)
+  }
+
+  curPath.pop()
 }

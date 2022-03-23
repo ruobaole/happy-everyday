@@ -15,7 +15,7 @@
 //  tree is not balanced
 // Space: O(H) the height of the tree (worst case O(N) when the tree is not balanced)
 
-import { TreeNode } from '@src/TreeBreadthFS/TreeNode'
+import { TreeNode } from './../TreeBreadthFS/TreeNode'
 
 const countSumHelper = (
   root: TreeNode | null,
@@ -93,4 +93,47 @@ const countSum_r1Helper = (
 
 export const countSum_r1 = (root: TreeNode | null, sum: number): number => {
   return countSum_r1Helper(root, sum, [])
+}
+
+//--- r2 ---//
+//
+// DFS the tree while passing in the current path from the tree's root
+// Define prob(root, sum, curPath) - return the count of paths added up to sum
+//  ends at root AND root's subtrees
+// Thus, for each prob(), the result is made up of 3 parts --
+// 1. the count for paths end at root
+//  iterating from the curPath end to 0, get the count that adds up to sum
+// 2. recurse the left subtree
+// 3. recurse the right subtree
+// Base case is the null node
+// return 0
+//
+// Time: O(N)
+
+export function countPathForSum(root: TreeNode | null, sum: number): number {
+  const curPath: number[] = []
+  return countPathForSumHelper(root, sum, curPath)
+}
+
+function countPathForSumHelper(
+  root: TreeNode | null,
+  sum: number,
+  curPath: number[]
+): number {
+  if (root === null) {
+    return 0
+  }
+  curPath.push(root.value)
+  let curSum = 0
+  let cnt = 0
+  for (let i = curPath.length - 1; i >= 0; i -= 1) {
+    curSum += curPath[i]
+    if (curSum === sum) {
+      cnt += 1
+    }
+  }
+  cnt += countPathForSumHelper(root.left, sum, curPath)
+  cnt += countPathForSumHelper(root.right, sum, curPath)
+  curPath.pop()
+  return cnt
 }

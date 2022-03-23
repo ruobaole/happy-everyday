@@ -133,3 +133,69 @@ export class MedianOfAStreamR1 {
     return (maxHeapTop + minHeapTop) / 2
   }
 }
+
+//--- r2 ---//
+//
+// 2 Heaps -- minHeap to store the larger half, maxHeap
+// to store the smaller half;
+// Insersion:
+// 1. compare the new number with the top of the maxHeap,
+//  if smaller, it should be in the smaller half (the maxHeap);
+//  else, it should be in the larger half (the minHeap);
+//  add the new number to the heap it belongs;
+// 2. balancing the 2 heaps
+//  we decide that the maxHeap can have at least 1 element more than
+//  the minHeap
+//  thus, everytime when balancing, we compare the sizes of the 2 heaps;
+//  if maxHeap.size() - minHeap.size() > 1, move the top of the maxHeap to minHeap;
+//  if minHeap.size() - maxHeap.size() > 0, move the top of the minHeap to maxHeap;
+// Find Median:
+// if odd numbers -- return the top of the maxHeap
+// if even -- return the average of the 2 heaps' top
+//
+// Time:
+// - Insersion -- O(logN); the add into the heap costs O(logN); when balancing, we pop
+//  out at most 1 element from one heap and insert into another -- costs O(logN)
+// - Find Median -- O(1)
+// Space: O(N)
+
+export class MedianOfAStreamR2 {
+  private maxHeap: Heap<number>
+  private minHeap: Heap<number>
+
+  constructor() {
+    this.maxHeap = new Heap<number>((a, b) => a - b)
+    this.minHeap = new Heap<number>((a, b) => b - a)
+  }
+
+  insert_num(num: number): void {
+    // 1. adding into the right heap
+    if (this.maxHeap.isEmpty() || num <= this.maxHeap.peek()) {
+      this.maxHeap.add(num)
+    } else {
+      this.minHeap.add(num)
+    }
+    // 2. balancing
+    if (this.maxHeap.size() - this.minHeap.size() > 1) {
+      const top = this.maxHeap.removeRoot() as number
+      this.minHeap.add(top)
+    }
+    if (this.minHeap.size() - this.maxHeap.size() > 0) {
+      const top = this.minHeap.removeRoot() as number
+      this.maxHeap.add(top)
+    }
+  }
+
+  find_median(): number | undefined {
+    const N = this.maxHeap.size() + this.minHeap.size()
+    if (N === 0) {
+      return undefined
+    }
+    if (N % 2 === 0) {
+      const maxTop = this.maxHeap.peek() as number
+      const minTop = this.minHeap.peek() as number
+      return (maxTop + minTop) / 2
+    }
+    return this.maxHeap.peek() as number
+  }
+}

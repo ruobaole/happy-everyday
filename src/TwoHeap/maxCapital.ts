@@ -118,3 +118,56 @@ export const findMaxCapital_r1 = (
   }
   return curCapital
 }
+
+//--- r2 ---//
+//
+// Because we get the the profit for the invested project once we
+//  select it -- our total capital would never decrease -- we do not
+//  need to care the capitial of the projects;
+// Every time, for all the projects available (affordable) for us, pick
+//  the one with the max profit -- greedy with constraints;
+// We use 2 heaps:
+// - minHeap for the constraints; so that we can pull out all projects
+//  affordable easily
+// - maxHeap for the gready pick; while popping out from the minHeap, push
+//  their profits into the maxHeap so that we can pick the one with the max
+//  profit easily
+//
+// Time: O(NlogN) - the size of the minHeap is inited to be N; and we at most
+//  pops all the elements out -- hence N rounds -- O(NlogN)
+// Space: O(N) -- the size of the minHeap
+
+export function maxCapital(
+  capitial: number[],
+  profits: number[],
+  numberOfProjects: number,
+  initialCapital: number
+): number {
+  if (
+    capitial.length === 0 ||
+    profits.length === 0 ||
+    capitial.length !== profits.length
+  ) {
+    return 0
+  }
+  // [capital, projectIndex]
+  const minHeap = new Heap<[number, number]>((a, b) => b[0] - a[0])
+  const maxHeap = new Heap<number>((a, b) => a - b)
+  capitial.forEach((cap, idx) => {
+    minHeap.add([cap, idx])
+  })
+  let totalCap = initialCapital
+  while (numberOfProjects > 0) {
+    while (minHeap.peek() !== undefined && minHeap.peek()[0] <= totalCap) {
+      const [projCap, idx] = minHeap.removeRoot()
+      maxHeap.add(profits[idx])
+    }
+    if (!maxHeap.isEmpty()) {
+      totalCap += maxHeap.removeRoot() as number
+    } else {
+      break
+    }
+    numberOfProjects -= 1
+  }
+  return totalCap
+}

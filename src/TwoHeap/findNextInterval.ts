@@ -18,7 +18,7 @@
 //   takes as much as O(NlogN)
 // Space: O(N)
 
-import { Interval } from '@src/MergeIntervals/mergeIntervals'
+import { Interval } from './../MergeIntervals/mergeIntervals'
 import { Heap } from 'typescript-collections'
 
 export const findNextInterval = (intervals: Interval[]): number[] => {
@@ -109,4 +109,50 @@ export const findNextInterval_r1 = (intervals: Interval[]): number[] => {
     }
   }
   return next
+}
+
+//--- r2 ---//
+//
+// Two Heaps OR One Heap + sorting
+// - a minHeap ordered by the intervals' end time
+// - a minHeap ordered by the intervals' start time
+// In every iteration:
+// - pop out the root of the minHeapEnd;
+// - pop intervals from the minHeapStart, until the top of the
+//  heap has start time >= curInterval's end time
+//  because further intervals' end time must be larger than this interval's
+//  end time, all the intervals that has been popped out from the minHeapStart
+//  can be safely discarded;
+// - break the iteration when minHeapStart is empty; all the rest intervals' next
+//  should be -1
+//
+// Time: O(NlogN) -- N intervals in the heap; N rounds of remove root;
+// Space: O(N)
+
+export function nextInterval(intervals: Interval[]): number[] {
+  if (intervals.length === 0) {
+    return []
+  }
+  const result = new Array(intervals.length).fill(-1)
+  // [endtime, intervalIdx]
+  const minHeapEnd = new Heap<[number, number]>((a, b) => b[0] - a[0])
+  // [startTime, intervalIdx]
+  const minHeapStart = new Heap<[number, number]>((a, b) => b[0] - a[0])
+  intervals.forEach((itv, idx) => {
+    minHeapEnd.add([itv.end, idx])
+    minHeapStart.add([itv.start, idx])
+  })
+  while (!minHeapEnd.isEmpty()) {
+    const [curEnd, curIdx] = minHeapEnd.removeRoot() as [number, number]
+    while (!minHeapStart.isEmpty() && minHeapStart.peek()[0] < curEnd) {
+      minHeapStart.removeRoot()
+    }
+    if (minHeapStart.size() > 0) {
+      const [nextStart, nextIdx] = minHeapStart.peek() as [number, number]
+      result[curIdx] = nextIdx
+    } else {
+      break
+    }
+  }
+  return result
 }

@@ -63,3 +63,30 @@ export const findAllSubsets_r1 = (nums: number[]): number[][] => {
   }
   return result
 }
+
+//--- r2 ---//
+//
+// BFS the tree to generate all answers at the leaf nodes;
+// init the tree's root with an empty array result -- [[]]
+// At every level of the tree, push the level's number nums[lv] into
+//  each answer of the previous level to generate answers for this level;
+// Since the orignal array contains no duplicate elements, the result would be
+//  all distinct elements;
+//
+// Time: the total number of leaves -- O(2^N); the tree's node number is bounded by
+//  its leaf numbers -- hence O(2^N)
+// Space: O(2^N) -- for the result array
+
+export function allDistinctSubsets(nums: number[]): number[][] {
+  const result: number[][] = [[]]
+  for (let lv = 0; lv < nums.length; lv += 1) {
+    const lvNum = nums[lv]
+    const lvLen = result.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = result[i]
+      const newAns = [...prevAns, lvNum]
+      result.push(newAns)
+    }
+  }
+  return result
+}

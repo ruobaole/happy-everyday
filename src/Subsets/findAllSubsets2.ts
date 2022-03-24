@@ -80,3 +80,38 @@ export const findAllSubsets2_r1 = (nums: number[]): number[][] => {
   }
   return result
 }
+
+//--- r2 ---//
+//
+// First, sort the input array so that duplicates are next to each other;
+// Whenever we encounter a number that is the same with its previous one,
+//  we should not add it to all the previous answers, but only the answers
+//  in the previous level;
+// Why? because, its previous number has already has itself added with all
+//  the previous level's answers;
+// Hence, we need to mark the starting point or the length of each level's
+//  answers;
+//
+// Time: still O(N*2^N) -- because when all numbers are unique, the answer still
+//  doubles in each level;
+// Space: O(N*2^N)
+
+export function allDistinctSubsets2(nums: number[]): number[][] {
+  const result: number[][] = [[]]
+  nums.sort()
+  let lvStart = 0
+  for (let lv = 0; lv < nums.length; lv += 1) {
+    const lvNum = nums[lv]
+    const lvLen = result.length
+    let start = 0
+    if (lv > 0 && lvNum === nums[lv - 1]) {
+      start = lvStart
+    }
+    for (let i = start; i < lvLen; i += 1) {
+      const newAns = [...result[i], lvNum]
+      result.push(newAns)
+    }
+    lvStart = lvLen
+  }
+  return result
+}

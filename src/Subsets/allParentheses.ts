@@ -106,3 +106,56 @@ export const allValidParentheses_r1 = (num: number): string[] => {
   }
   return queue.map((ans) => ans.str)
 }
+
+//--- r2 ---//
+//
+// BFS to generate all answers;
+// At each level, we take the parent answer and branching between appending a (
+//  or );
+// Hence, 2*N levels;
+// The rule for adding valid parentheses is --
+// - if in the parent answer, the number of ( is smaller than N (still have ( available)
+//  we can add a (
+// - if in the parent answer, the number of ) < the number of ( -- we can add a )
+// In order to get the number of the 2 parentheses easily, we store the string along
+//   with its leftParen and rightParen's numbers in the queue;
+// We only need answers in the previous level; hence, we can pop out answers while
+//  iterating in each level;
+// Return the queue at last;
+//
+// Time: each node has at most 2 branches -- hence roughly 2^N leaves in total; the creating
+//  of each answer calls for array or string copy -- hence, roughly O(N * 2^N)
+// Space: O(N * 2^N)
+
+interface Answer {
+  ans: string
+  leftCnt: number
+  rightCnt: number
+}
+
+export function allParentheses(num: number): string[] {
+  const queue: Answer[] = [{ ans: '', leftCnt: 0, rightCnt: 0 }]
+  for (let lv = 0; lv < num * 2; lv += 1) {
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = queue.shift()
+      if (prevAns.leftCnt < num) {
+        const newAns: Answer = {
+          ans: `${prevAns.ans}(`,
+          leftCnt: prevAns.leftCnt + 1,
+          rightCnt: prevAns.rightCnt
+        }
+        queue.push(newAns)
+      }
+      if (prevAns.rightCnt < prevAns.leftCnt) {
+        const newAns: Answer = {
+          ans: `${prevAns.ans})`,
+          leftCnt: prevAns.leftCnt,
+          rightCnt: prevAns.rightCnt + 1
+        }
+        queue.push(newAns)
+      }
+    }
+  }
+  return queue.map((a) => a.ans)
+}

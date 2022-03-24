@@ -88,3 +88,39 @@ export const letterCasePermu_r1 = (str: string): string[] => {
   }
   return result
 }
+
+//--- r2 ---//
+//
+// BFS to generate all strings;
+// Init the tree's root to be [''];
+// At each level, append the level's char to the end of all anwers in the previous level;
+// For each prev answer, we should try both the upper and lower case form of the current
+//  level's char;
+// Return the result of the last level;
+// Since we only need answers in the previous level; we can pop out answers while iterating;
+//
+// Time: the number of permutation -- O(2^N) (N is the number of letters); to generate each
+//  permutation, we need to copy the its previous answer -- O(N)
+//  hence, O(N * 2^N)
+// Space: O(N * 2^N)
+
+export function letterCasePermu_r2(str: string): string[] {
+  const queue: string[] = ['']
+  for (let lv = 0; lv < str.length; lv += 1) {
+    const lvChar = str[lv]
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = queue.shift() as string
+      const charUpper = lvChar.toLocaleUpperCase()
+      const ans1 = `${prevAns}${charUpper}`
+      queue.push(ans1)
+      const charLower = lvChar.toLocaleLowerCase()
+      if (charLower !== charUpper) {
+        // if the char has upper and lower forms
+        const ans2 = `${prevAns}${charLower}`
+        queue.push(ans2)
+      }
+    }
+  }
+  return queue
+}

@@ -79,3 +79,37 @@ export const findAllPermutations_r1 = (nums: number[]): number[][] => {
   }
   return result
 }
+
+//--- r2 ---//
+//
+// We start with only 1 number -- then there would only be 1 permutation;
+// Then continue to 2 numbers -- the second number would have 2 possible positions;
+//   hence -- 2 permutations;
+// Then to 3 numbers -- the 3rd number would have 3 possible positions for each of the 2
+//   previous answers -- hence 2*3 permutations;
+// Thus, we BFS the tree with root [[]]; At each level, generating answers based on
+//   answers at the previous level;
+// For each prev answer -- try all its possible positions to insert the new number;
+// Because we only need answers at the previous level, we can pop out answers at each level
+//   will iterating;
+//
+// Time: number of permutations would be N!; to get each permutations, we need to copy answer --
+//  O(N); hence O(N * N!)
+// Space: O(N * N!)
+
+export function findAllPermutations_r2(nums: number[]): number[][] {
+  const queue: number[][] = [[]]
+  for (let lv = 0; lv < nums.length; lv += 1) {
+    const lvNum = nums[lv]
+    const lvLen = queue.length
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = queue.shift()
+      for (let pos = 0; pos <= prevAns.length; pos += 1) {
+        const newAns = [...prevAns]
+        newAns.splice(pos, 0, lvNum)
+        queue.push(newAns)
+      }
+    }
+  }
+  return queue
+}

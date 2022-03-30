@@ -101,3 +101,47 @@ export const searchInInfiniteArray_r1 = (
   }
   return -1
 }
+
+//--- r2 ---//
+//
+// 1. find the bound of the key
+// 2. binary search for the key within the bound
+// To find the bound of the key, we start with boundSize = 1 (low = high = 0),
+//  and doubles the boundSize by *2 in each iteration;
+// - init with low = 0, high = 0, boundSize = 0
+// - compare the key with reader.get(low) and reader.get(high), since if the index is
+//  out of bound, the reader returns MAX_INTEGER, we can ignore cases when high is out of bound
+//  and simply compare the 2 numbers;
+// - if not within the bound -- low = high + 1, high = low + 2 * prevSize - 1
+//
+// Time: finding the bound takes O(logN) -- N is related to the index of the key in the array;
+//  because we expand the size by 2 in each iter, it takes at most logN iteration to grow the
+//  bound array to size N
+// Space: O(1)
+
+export function searchInInfiniteArray_r2(
+  reader: ArrayReader,
+  key: number
+): number {
+  let low = 0
+  let high = 0
+  let size = 1
+  while (key > reader.get(high)) {
+    size *= 2
+    low = high + 1
+    high = low + size - 1
+  }
+
+  let mid = low
+  while (low <= high) {
+    mid = Math.floor(low + (high - low) / 2)
+    if (reader.get(mid) === key) {
+      return mid
+    } else if (reader.get(mid) < key) {
+      low = mid + 1
+    } else {
+      high = mid - 1
+    }
+  }
+  return -1
+}

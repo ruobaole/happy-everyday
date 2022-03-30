@@ -75,3 +75,34 @@ export const findCeilingOfNumber_r1 = (arr: number[], key: number): number => {
   }
   return ceiling
 }
+
+//--- r2 ---//
+//
+// Binary Search with the searching strategy a little different
+// - if midNum >= key: there can be potential numbers to the left of midNum
+//  hence, high = mid
+// in such way, we should break when low === high -- otherwise infinite loop will
+//  occur;
+// if arr[low] >= key, return low; else return -1 ---> there can be no ceiling within
+//  the array;
+//
+// Time: O(logN)
+// Space: O(1)
+
+export function findCeilingOfNumber_r2(arr: number[], key: number): number {
+  if (arr.length === 0) {
+    return -1
+  }
+  let low = 0
+  let high = arr.length - 1
+  let mid = low
+  while (low < high) {
+    mid = Math.floor(low + (high - low) / 2)
+    if (arr[mid] < key) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+  return arr[low] >= key ? low : -1
+}

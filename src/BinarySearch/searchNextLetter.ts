@@ -68,3 +68,32 @@ export const searchNextLetter_r1 = (letters: string[], key: string): string => {
   }
   return letters[nextIdx]
 }
+
+//--- r2 ---//
+//
+// Binary Search
+// if midLetter > key, there can be potential answers to the left of midLetter,
+// we can temporarily memorize the mid with nextIdx = mid; and search with in the
+//  smaller half -- high = mid - 1
+// the breaking condition should be the same -- low > high
+// Notice that because all the letters are in their lower cases, we can compare the
+//  order by directly -- letter1 < letter2
+//
+// Time: O(logN)
+
+export function searchNextLetter_r2(letters: string[], key: string): string {
+  let nextIdx = 0
+  let low = 0
+  let high = letters.length - 1
+  let mid = low
+  while (low <= high) {
+    mid = Math.floor(low + (high - low) / 2)
+    if (letters[mid] <= key) {
+      low = mid + 1
+    } else {
+      nextIdx = mid
+      high = mid - 1
+    }
+  }
+  return letters[nextIdx]
+}

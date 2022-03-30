@@ -143,3 +143,82 @@ export const waysToEvaluateExpression_r1 = (input: string): number[] => {
   const memo: Record<string, number[]> = {}
   return waysToEvaluateExpression_r1Helper(input, 0, input.length - 1, memo)
 }
+
+//--- r2 ---//
+//
+// Each operator can seperate the expression into 2 parts -- left and right;
+// The 2 parts are 2 seperate expressions -- hence each returns a list of possible
+//   values;
+// The possible values of the current expression, is therefore drawn by doing an N*N
+//  iteration on the 2 lists -- generate all the answers -- and iterate through all the
+//  operators to get superset of all these answers;
+// We define problem -- prob(start, end) returns the list of values for substring expression
+//  input[start, end];
+// We should iterate i from start to end, for each operator, calculate the left and right parts --
+// - leftAnswers = prob(start, i - 1)
+// - rightAnswers = prob(i+1, end)
+// Do an N*N iteration on leftAnswers and rightAnswers; push the result to result array;
+// Notice that there will be many duplicated subproblems -- hence, we use a memo to memorize
+//  these subproblems
+//
+// Time: O(M * 2^N) -- similar as all parentheses -- number of ways to insert valid parentheses
+//  will be 2^N; for each possible ways of seperating expression, we need to recursivly get the
+//  expression's answer which is O(1) -- best, O(M) -- worst
+// Space: O(2^N) -- the memo contains at most all possible ways of seperating the expression
+
+export function waysToEvaluateExpression_r2(input: string): number[] {
+  const memo: Record<string, number[]> = {}
+  return waysToEvaluateExpression_r2Helper(input, 0, input.length - 1, memo)
+}
+
+function waysToEvaluateExpression_r2Helper(
+  input: string,
+  start: number,
+  end: number,
+  memo: Record<string, number[]>
+): number[] {
+  const inputStr = input.substring(start, end + 1)
+  if (
+    !inputStr.includes('+') &&
+    !inputStr.includes('-') &&
+    !inputStr.includes('*')
+  ) {
+    return [parseInt(inputStr)]
+  }
+  if (memo[inputStr] !== undefined) {
+    return memo[inputStr]
+  }
+  const result = new Set<number>()
+  for (let i = start; i <= end; i += 1) {
+    const op = inputStr[i]
+    if (op === '+' || op === '-' || op === '*') {
+      const leftRes = waysToEvaluateExpression_r2Helper(
+        input,
+        start,
+        i - 1,
+        memo
+      )
+      const rightRes = waysToEvaluateExpression_r2Helper(
+        input,
+        i + 1,
+        end,
+        memo
+      )
+      leftRes.forEach((leftNum) => {
+        rightRes.forEach((rightNum) => {
+          if (op === '+') {
+            result.add(leftNum + rightNum)
+          }
+          if (op === '-') {
+            result.add(leftNum - rightNum)
+          } else {
+            result.add(leftNum * rightNum)
+          }
+        })
+      })
+    }
+  }
+  const resultArray = Array.from(result)
+  memo[inputStr] = resultArray
+  return resultArray
+}

@@ -93,3 +93,48 @@ export const getGeneralizedAbbreviations_r1 = (word: string): string[] => {
   }
   return result.map((wordArray) => wordArray.join(''))
 }
+
+//--- r2 ---//
+//
+// BFS to generate all answers;
+// init the queue with empty string [''];
+// for each level, we process char -- word[lv], branching between:
+// 1) use abbreviation
+// 2) do not use abbreviation
+// We pop out answers at each level, return the answers at the last level
+//
+// Time: O(2^N) -- 2 branches in each level
+// Space: O(N)
+
+export function getGeneralizedAbbreviations_r2(word: string): string[] {
+  const wordAarry = word.split('')
+  const queue: string[][] = [[]]
+  for (let lv = 0; lv < wordAarry.length; lv += 1) {
+    const lvLen = queue.length
+    const lvChar = word[lv]
+    for (let i = 0; i < lvLen; i += 1) {
+      const prevAns = queue.shift()
+      // 1) do no abbreviate
+      const curAns1 = [...prevAns, lvChar]
+      queue.push(curAns1)
+      // 2) abbreviate
+      const curAns2 = abbreviateConcate(prevAns)
+      queue.push(curAns2)
+    }
+  }
+  return queue.map((strList) => strList.join(''))
+}
+
+function abbreviateConcate(letterList: string[]): string[] {
+  if (
+    letterList.length === 0 ||
+    isNaN(parseInt(letterList[letterList.length - 1]))
+  ) {
+    const abbreviated = '1'
+    return [...letterList, abbreviated]
+  }
+  const abbreviated = (
+    parseInt(letterList[letterList.length - 1]) + 1
+  ).toString()
+  return [...letterList.slice(0, letterList.length - 1), abbreviated]
+}

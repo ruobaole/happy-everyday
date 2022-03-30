@@ -80,9 +80,9 @@ export const allUniqueBSTs = (n: number): TreeNode[] => {
 // At level 1, based on the parent node n0, we know that all possible left
 //  subtrees should be allUniqueBSTWithinRange(0, n0 - 1) and all ...
 //  right subtrees should be allUniqueBSTWithinRange(n0 + 1, n)
-// After getting the results fromt the left and right subtree, we should do
+// After getting the results from the left and right subtree, we should do
 //  N*N iteratings to get all answers of the current subtree;
-// Hence, we recursively finding all uniqueBSTsWithinRange(low, hight)
+// Hence, we recursively finding all uniqueBSTsWithinRange(low, high)
 // Base Case is when low > high, the only answer is null
 // Note that there will be overlapping subproblems -- why?
 //  problem(1, 5), problem(1, 4), problem(1, 3) all calls for problem(1, 2)
@@ -131,4 +131,64 @@ export const allUniqueBSTs_r1 = (n: number): TreeNode[] => {
   return allUniqueBSTsWithinRange(1, n, memo).filter(
     (root) => root !== null
   ) as TreeNode[]
+}
+
+//--- r2 ---//
+//
+// At every level, we branching between having the numbers within the input array
+//  each being the root;
+// For each of the subtree in the level, say, n is the root its left subtree should be
+//  rooted on the results of of prob(low, n - 1); and its right subtree should be rooted
+//  on the results of prob(n + 1, high);
+// For the leftResult and rightResult, we should do N*N iterating to generating all the
+//  results for the current level;
+// Hence, we can define prob(low, high) to return all BSTs with its number in range [low, high]
+// Base case should be when low === high, only one node is returned --
+//  [low];
+// NOTICE that there will be many duplicate subproblems, thus we use memo[`${low}-{high}`] to memorizing
+//  results
+//
+// Time: number of all unique BSTs -- roughly O(2^N), similar as evaluate expressions, because we're
+//  seperating array of numbers within a range;
+//  for each BST, O(N) is needed to build the tree -- O(N * 2^N)
+// Space: O(N * 2^N)
+
+export function allUniqueBSTs_r2(n: number): TreeNode[] {
+  const memo: Record<string, TreeNode[]> = {}
+  return allUniqueBSTs_r2Helper(1, n, memo)
+}
+
+function allUniqueBSTs_r2Helper(
+  low: number,
+  high: number,
+  memo: Record<string, TreeNode[]>
+): TreeNode[] {
+  const result: TreeNode[] = []
+  if (low === high) {
+    result.push(new TreeNode(low))
+    return result
+  }
+  if (memo[`${low}-${high}`] !== undefined) {
+    return memo[`${low}-${high}`]
+  }
+  for (let n = low; n <= high; n += 1) {
+    let leftRes: TreeNode[] = []
+    let rightRes: TreeNode[] = []
+    if (n > low) {
+      leftRes = allUniqueBSTs_r2Helper(low, n - 1, memo)
+    }
+    if (n < high) {
+      rightRes = allUniqueBSTs_r2Helper(n + 1, high, memo)
+    }
+    leftRes.forEach((l) => {
+      rightRes.forEach((r) => {
+        const curRoot = new TreeNode(n)
+        curRoot.left = l
+        curRoot.right = r
+        result.push(curRoot)
+      })
+    })
+  }
+  memo[`${low}-${high}`] = result
+  return result
 }

@@ -84,3 +84,47 @@ export const countTrees_r1 = (n: number): number => {
   const memo: Record<number, number> = {}
   return countTreeWithinRange(n, memo)
 }
+
+//--- r2 ---//
+//
+// Define prob(start, end) - return the number of BSTs generated
+//  from number within range [start, end]
+// We branching between having each number within [start, end] as the
+//  root of the subtree, for each root, its left subtree number and right subtree
+//  number can get from 2 recursive calls:
+// - leftCnt = prob(start, n-1)
+// - rightCnt = prob(n+1, end)
+// the total BST cnt should be leftCnt * rightCnt
+// NOTICE that, the cnt is actually only related with the size of the range, not specific
+//  start or end;
+// Thus, the problem can be reduced to only 1 parameter -- prob(rangeSize)
+// We can memorize the result of the subproblems using memo[]
+//
+// Time: O(2^N) -- the total nodes of BSTs is bounded by the leaf node's cnt; how
+//  many BTS ? loosely 2^N -- the same as the parenthese question
+// Space: O(2^N)
+
+export function countTrees_r2(n: number): number {
+  const memo: Record<number, number> = {}
+  return countTrees_r2Helper(n, memo)
+}
+
+function countTrees_r2Helper(
+  rangeSize: number,
+  memo: Record<number, number>
+): number {
+  if (rangeSize === 1) {
+    return 1
+  }
+  if (memo[rangeSize]) {
+    return memo[rangeSize]
+  }
+  let cnt = 0
+  for (let n = 1; n <= rangeSize; n += 1) {
+    const leftCnt = countTrees_r2Helper(n - 1, memo)
+    const rightCnt = countTrees_r2Helper(rangeSize - (n + 1) + 1, memo)
+    cnt += leftCnt * rightCnt
+  }
+  memo[rangeSize] = cnt
+  return cnt
+}

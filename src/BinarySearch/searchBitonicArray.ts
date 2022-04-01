@@ -157,3 +157,80 @@ export const searchBitonicArray_r1 = (arr: number[], key: number): number => {
   }
   return keyIdx
 }
+
+//--- r2 --- //
+//
+// 1. first, find the index of the max element in the array -- maxIdx
+// 2. try to find the key in the ascending part -- [0, maxIdx]
+// 3. if not found, try finding the key in the descending part
+// Notice that the 'monotonically increase or decrease' is defined that no
+//  consecutive numbers should be the same -- hence, we do not need to care
+//  for the case that we cannot tell which part the mid is in by comparing
+//  arr[mid] and arr[mid + 1]
+//
+// Time: O(logN)
+
+export function searchBitonicArray_r2(arr: number[], key: number): number {
+  // Assume that no consecutive numbers are the same
+  let idx = -1
+  const maxIdx = findBitonicArrayMax(arr)
+  if (maxIdx >= arr.length) {
+    return idx
+  }
+  if (key >= arr[0] && key <= arr[maxIdx]) {
+    idx = binarySearch_r2(arr, key, 0, maxIdx, true)
+  }
+  if (idx === -1) {
+    idx = binarySearch_r2(arr, key, maxIdx + 1, arr.length - 1, false)
+  }
+  return idx
+}
+
+function findBitonicArrayMax(arr: number[]): number {
+  let maxIdx = 0
+  let low = 0
+  let high = arr.length - 1
+  let mid = low
+  while (low <= high) {
+    mid = Math.floor(low + (high - low) / 2)
+    if (mid + 1 >= arr.length || arr[mid] > arr[mid + 1]) {
+      // descending part
+      maxIdx = mid
+      high = mid - 1
+    } else {
+      // ascending
+      low = mid + 1
+    }
+  }
+  return maxIdx
+}
+
+function binarySearch_r2(
+  arr: number[],
+  key: number,
+  start: number,
+  end: number,
+  isAscending: boolean
+): number {
+  let mid = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === key) {
+      return mid
+    }
+    if (arr[mid] > key) {
+      if (isAscending) {
+        end = mid - 1
+      } else {
+        start = mid + 1
+      }
+    } else {
+      if (isAscending) {
+        start = mid + 1
+      } else {
+        end = mid - 1
+      }
+    }
+  }
+  return -1
+}

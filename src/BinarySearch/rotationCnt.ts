@@ -112,3 +112,50 @@ export const countRotations_r1 = (arr: number[]): number => {
   }
   return minIdx
 }
+
+//--- r2 ---//
+//
+// The rotation count is the index of the smallest number in the array.
+// How to use binary search to find the smallest?
+// First, for every mid, we need a way to check if the mid is the smallest element
+//  we're looking for. There're 2 cases:
+// 1. mid > start && arr[mid] < arr[mid - 1]: mid is the smallest
+// 2. mid < end && arr[mid] > arr[mid + 1]: mid + 1 is the smallest
+// Also, there is a special case where the array's rotation is 0 -- the array is totally
+//  sorted -- we'll take care of this solution later;
+// If mid is not the smallest, the searching strategy is as follows:
+// 1. see if the subarray[start, mid] the sorted part;
+//  if true, the min as defined above should be in the unsorted half the array;
+//  thus, we continue searching in the unsorted part
+// 2. if [start, mid] is not the sorted part, continue search in this part
+// Note that, in such way, if the array's rotation is 0, we'll failed to find the min in the
+//  array; no worry, just return 0 in this case
+// NOTE that the problem assumes that no duplicates occurs in the array
+//
+// Time: O(logN)
+
+export function countRotations_r2(arr: number[]): number {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (mid > start && arr[mid] < arr[mid - 1]) {
+      return mid
+    }
+    if (mid < end && arr[mid] > arr[mid + 1]) {
+      return mid + 1
+    }
+    if (arr[start] < arr[mid]) {
+      // [start, mid] is the sorted part
+      // search in the unsorted part
+      start = mid + 1
+    } else {
+      // [start, mid] is the unsorted part
+      end = mid - 1
+    }
+  }
+  // failed to find the min in the above strategy
+  // the array must be totally sorted
+  return 0
+}

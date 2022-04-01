@@ -124,3 +124,57 @@ export const searchRotatedArray_r1 = (arr: number[], key: number): number => {
   }
   return -1
 }
+
+//--- r2 ---//
+//
+// The mid breaks the array into 2 parts -- a sorted part, and
+//  a non-sorted part;
+// Each time --
+// First, tell which part is the sorted part;
+// Second, see if the key is within the range of the sorted part, if
+//  true, search in the sorted part
+//  else, search in the non-sorted part
+// How do we tell which part is the sorted part?
+// compare arr[start] with arr[mid], if arr[start] <= arr[mid]: sorted part
+//  else, non-sorted part
+// NOTE situation when duplicate elements occure. e.g. [8, 8, 8, 8, 8, 1, 3, 8]
+//  or [8, 9, 12, 8, 8, 8, 8, 8]
+// We should process this case first -- arr[start] === arr[mid] === arr[end] &&
+//  start !== end
+// In such case, we cannot tell which part is the sorted part by comparing arr[start]
+//  and arr[mid]. thus, we can only eliminating start and end if they are not the keys;
+//
+// Time: O(logN), however worst case O(N) when all elements are the same
+
+export function searchRotatedArray_r2(arr: number[], key: number): number {
+  let start = 0
+  let end = arr.length
+  let mid = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === key) {
+      return mid
+    }
+    if (start !== end && arr[start] === arr[mid] && arr[mid] === arr[end]) {
+      start += 1
+      end -= 1
+      continue
+    }
+    if (arr[start] <= arr[mid]) {
+      // [start, mid] is the sorted part
+      if (key >= arr[start] && key < arr[mid]) {
+        end = mid - 1
+      } else {
+        start = mid + 1
+      }
+    } else {
+      // [mid, end] is the sorted part
+      if (key > arr[mid] && key <= arr[end]) {
+        start = mid + 1
+      } else {
+        end = mid - 1
+      }
+    }
+  }
+  return -1
+}

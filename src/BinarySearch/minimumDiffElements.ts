@@ -80,3 +80,39 @@ export const findElementsWithMinDiff_r1 = (
     ? arr[start]
     : arr[end]
 }
+
+//--- r2 ---//
+//
+// In binary search, when we failed to find the target and break when
+//  start > end, the bound has been shrinked to its tightest -- meaning that
+//  start and end points to the 2 elements that have the smallest difference with
+//  the target;
+// There're 2 cases:
+// 1. one of start and end is out of bound, the other one should be the one with the smallest
+//  distance
+// 2. the 2 are in bounds. compare the 2 elements to find the one with smaller distance
+//
+// Time: O(logN)
+
+export function findElementsWithMinDiff_r2(arr: number[], key: number): number {
+  let start = 0
+  let end = arr.length - 1
+  let mid = start
+  while (start <= end) {
+    mid = Math.floor(start + (end - start) / 2)
+    if (arr[mid] === key) {
+      return key
+    }
+    if (arr[mid] > key) {
+      end = mid - 1
+    } else {
+      start = mid + 1
+    }
+  }
+  if (start >= arr.length || end < 0) {
+    return start >= arr.length ? arr[end] : arr[start]
+  }
+  return Math.abs(arr[start] - key) <= Math.abs(arr[end] - key)
+    ? arr[start]
+    : arr[end]
+}

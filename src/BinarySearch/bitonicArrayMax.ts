@@ -90,3 +90,43 @@ export const bitonicArrayMax_r1 = (arr: number[]): number => {
   }
   return arr[maxIdx]
 }
+
+//--- r2 ---//
+//
+// Notice that the 'motnotonically increase and decrease' defines that
+//  there should not be adjacent duplicate numbers within the array; --
+// meaning that the array is made up of an ascending part and followed by
+//  the descending part;
+// In each iteration for every mid, we need to tell if the mid is within the
+//  ascending part of the descending part;
+// - if ascending: the max should be either the mid of the parts to the right of
+//  mid;
+// - if descending: the max should be to the left of mid
+// - don't forget to mark maxIdx; when should we mark? it is depending on whether
+//  we're comparing mid and mid + 1 or mid and mid - 1;
+// To tell which part mid is in, we ony need to compare arr[mid] with arr[mid + 1]
+// - if mid + 1 is out of bound: descending part
+// - if arr[mid] < arr[mid + 1] ascending
+// - else: descending
+//
+// Time: O(logN)
+
+export function bitonicArrayMax_r2(arr: number[]): number {
+  // Assume that there're no adjacent duplicate numbers within the array
+  let low = 0
+  let high = arr.length - 1
+  let mid = low
+  let maxIdx = low
+  while (low <= high) {
+    mid = Math.floor(low + (high - low) / 2)
+    if (mid + 1 >= arr.length || arr[mid] > arr[mid + 1]) {
+      // descending part -- look up in left parts
+      high = mid - 1
+      maxIdx = mid
+    } else {
+      // ascending part -- mark temp and look up in right part
+      low = mid + 1
+    }
+  }
+  return arr[maxIdx]
+}

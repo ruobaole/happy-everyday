@@ -56,6 +56,33 @@ export const bitwiseComplement_r1 = (n: number): number => {
     cnt += 1
   }
   // 2. get allOnes
-  const allOnes = 2 ** (cnt + 1) - 1
+  const allOnes = 2 ** cnt - 1
   return n ^ allOnes
+}
+
+//--- r2 ---//
+//
+// Observe:
+// A XOR A_Com = AllBitOnes (from the leftmost bit in A that is 1, all the rightwards bits are 1s)
+// A XOR A XOR A_Com = A XOR AllBitOnes
+// => A_Com = A XOR AllBitOnes
+// Thus, the problem is simply to find AllBitOnes;
+// 1. we first need to find the bit count in A that is leftmost 1 bit;
+//   e.g. 8 which is 1000, bitCnt is 4
+// 2. allBitOnes = 2 ** bitCnt - 1
+//
+// Time: O(1) the total number of bits in the variable is constant
+
+export function bitwiseComplement_r2(n: number): number {
+  // 1. find the count of the leftmost 1 bit in n that is not 0
+  let n1 = n
+  let cnt = 0
+  while (n1 !== 0) {
+    n1 = n1 >> 1
+    cnt += 1
+  }
+
+  // 2. get allBitOnes
+  const allBitOnes = 2 ** cnt - 1
+  return n ^ allBitOnes
 }

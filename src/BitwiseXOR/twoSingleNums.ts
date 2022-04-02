@@ -88,3 +88,44 @@ export const findSingleNums_r1 = (nums: number[]): [number, number] => {
   })
   return [n1, n2]
 }
+
+//--- r2 ---//
+//
+// 1. accumulately XOR all numbers together, and we got n1XORn2
+// (because A XOR A = 0; 0 XOR A = A)
+// 2. n1XORn2 has all bits that is different in n1 and n2 marked 1; thus, we
+// can pick any bit in n1XORn2, based on whether the bit is 1 or 0, seperate all
+// numbers into 2 groups;
+// 3. for the respective 2 groups, XOR all the numbers together and we can get n1 and
+//  n2 seperately;
+// How do we find a bit that is 1 in n1XORn2?
+// - note that when we perform A & 0000 0010, the answer is 0 if the bit is 0
+// - thus, we just shift our oneBit by 1 bit leftwards in each iteration; AND n1XORn2
+//  with oneBit until the result is not 0; -- oneBit marks the bit that is not 0 in n1XORn2
+// How do we seperate the numbers into 2 groups based on bit?
+// - AND the number with oneBit, if the result is 0 or not
+//
+// Time: O(N); the loop in finding oneBit takes constant time
+
+export function findSingleNums_r2(nums: number[]): [number, number] {
+  let n1XORn2 = 0
+  nums.forEach((num) => {
+    n1XORn2 ^= num
+  })
+
+  let oneBit = 1
+  while ((n1XORn2 & oneBit) === 0) {
+    oneBit = oneBit << 1
+  }
+
+  let n1 = 0
+  let n2 = 0
+  nums.forEach((num) => {
+    if ((num & oneBit) === 0) {
+      n1 ^= num
+    } else {
+      n2 ^= num
+    }
+  })
+  return [n1, n2]
+}

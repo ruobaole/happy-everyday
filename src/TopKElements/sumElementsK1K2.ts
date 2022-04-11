@@ -72,3 +72,32 @@ export const sumElements_r1 = (
   }
   return sum
 }
+
+//--- r2 ---//
+//
+// 1. keep the top k2-1 smallest numbers in a maxHeap
+// 2. continuously pop out k2 - 1 - k1 elements from the maxHeap (the remaining
+//  k1 would be the top k1 smallest, thus the popped out elements should be
+//  between the k1 and k2 smallest); get their sum
+//
+// Time: O(Nlogk2) -- the size of the heap is k2; the populating of the heap and the
+//  removing roots are bounded by N
+// Space: O(K2)
+
+export function sumElements_r2(nums: number[], k1: number, k2: number): number {
+  const maxHeap = new Heap<number>((a, b) => a - b)
+  nums.forEach((num) => {
+    if (maxHeap.size() < k2 - 1) {
+      maxHeap.add(num)
+    } else if (maxHeap.peek() > num) {
+      maxHeap.add(num)
+    }
+  })
+  let sum = 0
+  for (let i = 0; i < k2 - k1 - 1; i += 1) {
+    if (maxHeap.size() > 0) {
+      sum += maxHeap.removeRoot() as number
+    }
+  }
+  return sum
+}

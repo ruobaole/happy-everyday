@@ -117,3 +117,61 @@ export const rearrangeKDistanceApart_r1 = (str: string, k: number): string => {
   }
   return resArray.join('')
 }
+
+//--- r2 ---//
+//
+// Each time we should greedily take out the char with the most frequency and append
+//  it to the resulting string;
+// After getting appended to the string, the char should wait in a waiting list for
+//  k - 1 iterations until it can again being pulled out and appended;
+// Hence, we use a maxHeap to store the char along with their frequencies to easily get
+//  the greedy output;
+// We use a queue as a waiting list; each time after appending a char, decrease its freq
+//  and push it into the queue (we should push it into the queue first and check if its
+//  frequency === 0 at the time when it is being popped out);
+// When the queue's size reaches k, meaning that there're already k-1 other chars before the
+//  queue's head being lastly appended to the string; we can pop out the queue's head, if its
+//  frequency is not 0, added back to the heap;
+// When the heap is empty, if the queue is not empty, we know that we have to put same chars
+//  less than k distance apart -- return ''
+//
+// Time: O(NlogK) -- size of heap is K (number of distinct chars), at most N rounds of popping out
+//  from the heap to make the result string
+// Space: O(K) -- the queue and the heap
+
+interface CharFreq {
+  char: string
+  freq: number
+}
+
+export function rearrangeKDistanceApart_r2(str: string, k: number): string {
+  const freqMap: Record<string, number> = {}
+  const maxHeap = new Heap<CharFreq>((a, b) => a.freq - b.freq)
+  for (let i = 0; i < str.length; i += 1) {
+    if (freqMap[str[i]] === undefined) {
+      freqMap[str[i]] = 0
+    }
+    freqMap[str[i]] += 1
+  }
+  Object.entries(freqMap).forEach(([char, freq]) => {
+    maxHeap.add({ char, freq })
+  })
+  const queue: CharFreq[] = []
+  const resString: string[] = []
+  while (maxHeap.size() > 0) {
+    const top = maxHeap.removeRoot()
+    resString.push(top.char)
+    top.freq -= 1
+    if (queue.length === k) {
+      const queueHead = queue.shift()
+      if (queueHead.freq > 0) {
+        maxHeap.add(queueHead)
+      }
+    }
+    queue.push(top)
+  }
+  if (queue.length !== 0) {
+    return ''
+  }
+  return resString.join('')
+}

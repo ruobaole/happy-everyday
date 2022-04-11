@@ -32,6 +32,7 @@
     "test": "jest  --watchAll",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix"
+
   },
   "dependencies": {
     "module-alias": "^2.2.2",

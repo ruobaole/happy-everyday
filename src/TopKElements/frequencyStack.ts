@@ -158,3 +158,78 @@ export class FrequencyStackR1 {
     return top === undefined ? undefined : top.value
   }
 }
+
+//--- r2 ---//
+//
+// The element in the stack is popped out in some order -- thus,
+//  store the element in a priority queue -- i.e. heap
+// The heap's order should be defined as described. We define a class Element
+//  to store the element's value, frequency and sequenceNumber
+// - push: get the number's current frequency from the freqMap;
+//  construct the Element instanstance;
+//  push the instance into the heap;
+// - pop: remove the root of the heap; its frequency should be the element's current
+//  frequency; update the freqMap;
+//  (clean up entries with 0 frequencies in the freqMap)
+// NOTE that we actually stores every copy of the same letter into the heap -- we can safly
+//  remove the root each time in pop()
+//
+// Time:
+// - push: O(logN) -- N is the number of elements in the stack
+// - pop: O(logN)
+// Space: O(N)
+
+class ElementR2 {
+  private value: number
+  private freq: number
+  private seq: number
+
+  constructor(value: number, freq: number, seq: number) {
+    this.value = value
+    this.freq = freq
+    this.seq = seq
+  }
+
+  compare(other: ElementR2): number {
+    if (this.freq !== other.freq) {
+      return this.freq - other.freq
+    } else {
+      return this.seq - other.seq
+    }
+  }
+}
+
+export class FrequencyStackR2 {
+  private freqMap: Record<number, number>
+  private maxHeap: Heap<Element>
+  private seq: number
+
+  constructor() {
+    this.seq = 0
+    this.freqMap = {}
+    this.maxHeap = new Heap<Element>((a, b) => a.compare(b))
+  }
+
+  push(num: number) {
+    if (this.freqMap[num] === undefined) {
+      this.freqMap[num] = 0
+    }
+    this.freqMap[num] += 1
+    const newNum = new Element(num, this.freqMap[num], this.seq)
+    this.seq += 1
+    this.maxHeap.add(newNum)
+  }
+
+  pop(): number | undefined {
+    if (this.maxHeap.size() === 0) {
+      return undefined
+    }
+    const top = this.maxHeap.removeRoot()
+    top.freq -= 1
+    this.freqMap[top.value] = top.freq
+    if (top.freq === 0) {
+      delete this.freqMap[top.value]
+    }
+    return top.value
+  }
+}

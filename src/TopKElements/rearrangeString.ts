@@ -114,3 +114,59 @@ export const rearrangeString_r1 = (str: string): string => {
   }
   return resArray.join('')
 }
+
+//--- r2 ---//
+//
+// In each itereation, we should geedily take the char with the largest
+//  frequency, append it to the string;
+// To avoid putting same chars next to each other, we hold the char we've just
+//  appended to the string temporarily, add it back to the heap until we've put
+//  the char after it;
+// Hence, we first get the frequencies of all chars and store the char along with
+//  their frequencies in a maxHeap;
+// Everytime, remove the root the heap, append it to the string, decrease its frequency;
+// If prev exists, push prev back to the heap;
+// If the newly pulled out root's frequency is not 0, store it in prev;
+// If the heap is empty when prev exists -- meaning that we have no choice but to put same
+//  chars next to each other -- return ""
+//
+// Time: O(NlogK) -- K is the number of distinct chars, i.e. the size of the heap;
+//  N iteration of popping from the heap to construct the string
+// Space: O(K)
+
+interface CharFreq {
+  char: string
+  freq: number
+}
+
+export function rearrangeString_r2(str: string): string {
+  const maxHeap = new Heap<CharFreq>((a, b) => a.freq - b.freq)
+  const freqMap: Record<string, number> = {}
+  for (let i = 0; i < str.length; i += 1) {
+    if (freqMap[str[i]] === undefined) {
+      freqMap[str[i]] = 0
+    }
+    freqMap[str[i]] += 1
+  }
+  Object.entries(freqMap).forEach(([char, freq]) => {
+    maxHeap.add({ char, freq })
+  })
+  const resultString: string[] = []
+  let prev: CharFreq | null = null
+  while (maxHeap.size() > 0) {
+    const top = maxHeap.removeRoot()
+    resultString.push(top.char)
+    top.freq -= 1
+    if (prev) {
+      maxHeap.add(prev)
+    }
+    if (top.freq > 0) {
+      prev = top
+    }
+  }
+  if (prev) {
+    // same chars have to be next to each other
+    return ''
+  }
+  return resultString.join('')
+}

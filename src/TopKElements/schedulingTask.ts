@@ -72,7 +72,7 @@ export const scheduleTasks = (tasks: string[], k: number): number => {
 // pull out the task with the largest frequency and process it as high priority.
 // Hence, we use a maxHeap to store the task with their frequencies.
 // Inorder for the task to cool, we also need a queue to serve as the waiting list.
-// The queue keep record of the last executed at most K tasks.
+// The queue keeps record of the last-executed atmost K tasks.
 // In each iteration:
 // 1. pull out the top of the heap and executed it.
 // 2. decrease its freq and add it to the queue
@@ -117,6 +117,69 @@ export const scheduleTasks_r1 = (tasks: string[], k: number): number => {
     const front = queue.shift() as TaskTuple
     if (front.freq > 0) {
       maxHeap.add(front)
+    }
+  }
+  return cnt
+}
+
+//--- r2 ---//
+//
+// The strategy is, everytime greedily take out the the task with the most
+//  frequency, execute it with the highest priority;
+// After the task is executed, put it in the cooling waiting list to wait another
+//  k iterations for it to be ready for execute again;
+// Thus, we can pull out the head of the queue when the queue's size reaches k + 1;
+// What if the queue's size < k + 1? should we choose to idle or consume what's remaining
+//  in the maxHeap (ready to execute tasks) first?
+// e.g. aabbcc, k = 1
+// 1) idle first: a -> idle -> b -> idle -> c -> idle ...
+// 2) consuming the heap first: a -> b -> c -> a -> b -> c
+// Thus, we should consuming the heap first, when the heap is empty and the queue is not empty,
+//  we can start to idle for k + 1 - queue.length cycles, and popped out the queue's head to
+//  push it back to heap;
+// The iteration ends when queue is empty && heap is empty;
+// NOTE that we only need to return the cycle counts, thus we can add the cnt += k + 1 - queue.length
+//  when idle;
+//
+// Time: O(NlogK) -- the heap size is K (number of distinct tasks) -- at most N iterations of popping out
+//  from the heap
+// Space: O(K)
+
+interface TaskFreq {
+  task: string
+  freq: number
+}
+
+export function scheduleTasks_r2(tasks: string[], k: number): number {
+  const taskFreq: Record<string, number> = {}
+  const maxHeap = new Heap<TaskFreq>((a, b) => a.freq - b.freq)
+  tasks.forEach((task) => {
+    if (taskFreq[task] === undefined) {
+      taskFreq[task] = 0
+    }
+    taskFreq[task] += 1
+  })
+  Object.entries(taskFreq).forEach(([task, freq]) => {
+    maxHeap.add({ task, freq })
+  })
+  const queue: TaskFreq[] = []
+  let cnt = 0
+  while (maxHeap.size() > 0 && queue.length > 0) {
+    if (maxHeap.size() > 0) {
+      // consume the heap first
+      const top = maxHeap.removeRoot()
+      top.freq -= 1
+      queue.push(top)
+      cnt += 1
+    } else {
+      // have to idle if the heap is empty
+      if (queue.length < k + 1) {
+        cnt += k + 1 - queue.length
+      }
+      const front = queue.shift()
+      if (front.freq > 0) {
+        maxHeap.add(front)
+      }
     }
   }
   return cnt

@@ -83,3 +83,82 @@ export const canConstruct = (
   }
   return true
 }
+
+//--- r2 ---//
+//
+// Each subsequence in the given sequence list gives us rules of adjacent elements' order;
+// We can treat these rules as edges in the graph. The problem calls us to find ----
+//  1. whether the reconstructed topo order and the original one are the same
+//  2. whether the reconstructed one is the only one
+// Thus, while building the topo order from the graph and inDegreeMap, we need to check:
+// - if the vertices we got in the inDegreeMap !== length of the original sequence, return false
+// - if at any time, the source list contains more than one source -- more than one reconstructed
+//  order -- return false
+// - if at any time, the reconstructed order's element !== the corresponding element in the orignal
+//  sequence -- the 2 sequences do not match -- return false
+//
+// Time: O(N + M) -- N is the number of elements (the originalSeq's length); M is the number of rules
+//  given in the sequence list
+// Space: O(N + M) -- the graph
+
+export function canConstruct_r1(
+  originalSeq: number[],
+  sequences: number[][]
+): boolean {
+  const graph: Record<number, number[]> = {}
+  const inDegreeMap: Record<number, number> = {}
+  originalSeq.forEach((num) => {
+    if (graph[num] === undefined) {
+      graph[num] = []
+    }
+    inDegreeMap[num] = 0
+  })
+
+  sequences.forEach((seq) => {
+    for (let i = 0; i < seq.length - 1; i += 1) {
+      const cur = seq[i]
+      const next = seq[i + 1]
+      graph[cur].push(next)
+      inDegreeMap[next] += 1
+    }
+  })
+
+  if (Object.keys(inDegreeMap).length !== originalSeq.length) {
+    // The orders cannot match
+    return false
+  }
+
+  const sources: number[] = []
+  Object.entries(inDegreeMap).forEach(([childStr, inDeg]) => {
+    if (inDeg === 0) {
+      sources.push(+childStr)
+    }
+  })
+  let reconSeqLen = 0
+  while (sources.length > 0) {
+    if (sources.length !== 1) {
+      // More than one order can be reconstructed
+      return false
+    }
+    const parent = sources.shift()
+    if (parent !== originalSeq[reconSeqLen]) {
+      // The orders do not match
+      return false
+    }
+    reconSeqLen += 1
+    graph[parent].forEach((child) => {
+      inDegreeMap[child] -= 1
+      if (inDegreeMap[child] === 0) {
+        delete inDegreeMap[child]
+        sources.push(child)
+      }
+    })
+  }
+
+  if (reconSeqLen !== originalSeq.length) {
+    // The orders do not match
+    return false
+  }
+
+  return true
+}

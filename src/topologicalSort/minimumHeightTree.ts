@@ -61,3 +61,60 @@ export const findTrees = (nodes: number, edges: number[][]): number[] => {
 
   return leaves
 }
+
+//--- r1 ---//
+//
+// Observe that leaves of the graph cannot be roots -- because any of their
+//  neighbors can give tree of shorter height;
+// Thus, the solution is as follows:
+// repeatedly removes leaves (nodes with only 1 edge) from the graph, until we've
+//  left with only 1 or 2 nodes (because both of the 2 nodes are leaves)
+// We can use a similar approach as topo sort, only with a little modifications --
+// - since the gragh is undirectional, for edge [1, 2], we can treat it as 2 directional
+//  edges -- one from 1 -> 2 and the other 2 -> 1
+// - source list becoming leaves list -- storing only nodes with 1 edge
+// - when repeatedly removing leaves, keep a cnt of the current nodes remained, break the loop
+//  when the cnt <= 2
+// - what left in the leaves list are the roots we're looking for
+//
+// Time: O(V + E) -- similar approach as topo sort
+// Space: O(V + E)
+
+export function findTrees_r1(nodes: number, edges: number[][]): number[] {
+  if (nodes <= 0) {
+    return []
+  }
+  const graph = new Array(nodes).fill(0).map(() => new Array<number>())
+  const inDegreeMap = new Array(nodes).fill(0)
+
+  edges.forEach(([n1, n2]) => {
+    graph[n1].push(n2)
+    inDegreeMap[n2] += 1
+    graph[n2].push(n1)
+    inDegreeMap[n1] += 1
+  })
+
+  const leaves: number[] = []
+  for (let i = 0; i < nodes; i += 1) {
+    if (inDegreeMap[i] === 1) {
+      leaves.push(i)
+    }
+  }
+
+  let nodesCnt = nodes
+  while (nodesCnt > 2) {
+    const leavesLen = leaves.length
+    nodesCnt -= leavesLen
+    for (let i = 0; i < leavesLen; i += 1) {
+      const leave = leaves.shift()
+      graph[leave].forEach((child) => {
+        inDegreeMap[child] -= 1
+        if (inDegreeMap[child] === 1) {
+          leaves.push(child)
+          delete inDegreeMap[child]
+        }
+      })
+    }
+  }
+  return leaves
+}

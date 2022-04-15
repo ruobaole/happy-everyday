@@ -58,3 +58,67 @@ export const topologicalSort = (
   }
   return sortedOrder
 }
+
+//--- r2 ---//
+//
+// Basic process described is --
+//  Removes the sources (no parent) of the graph, add them to the result list
+//  Some of the nodes in the graph will become new sources, add them to the result list
+//  Repeat the process until there're no more sources
+// 1. how do we find the sources of the graph
+// - keep a map inDegreeMap, key - node, value - the in-degree count of the node
+// - each time one of its parent is removed from the graph, its inDegreeMap's value should -1
+// - when removing the nodes from the graph, we need to easily know its children, so that we can
+//  update its inDegree, thus, store the graph in an adjacency list -- a hashmap whose key being the
+//  node, value being the list of its children nodes;
+// - we should also keep a queue to store all the sources nodes in each iteration; because we can have
+//  more than one source;
+// NOTE that, if cycle exists in the graph, e.g. [2, 1], [1, 3], [3, 2] there're no nodes whose inDegree
+//  is 1 -- no source
+// In that case, we'll end up to have our final result list (sortedList) to have fewer nodes than the
+//  number of vertices -- we know that cycle exists -- return []
+//
+// Time: O(V + E); the construction of the adjacency list and the inDegreeMap takes the traversal of
+//  all edges -- O(E); when recursively removing the sources, each node can be the source at most onece
+//  -- O(V)
+// Space: O(V + E) -- the space need to store the adjacency list
+
+export function topologicalSort_r1(
+  vertices: number,
+  edges: number[][]
+): number[] {
+  const sortedList: number[] = []
+  // rowIdx - parent node number; colIdx - children of the parent node
+  const graph = new Array(vertices).fill(0).map(() => new Array<number>())
+  // key - node; value: its inDegree count
+  const inDegree = new Array(vertices).fill(0)
+  edges.forEach(([parent, child]) => {
+    graph[parent].push(child)
+    inDegree[child] += 1
+  })
+
+  const queue: number[] = []
+  for (let v = 0; v < vertices; v += 1) {
+    if (inDegree[v] === 0) {
+      queue.push(v)
+    }
+  }
+
+  while (queue.length > 0) {
+    const source = queue.shift()
+    sortedList.push(source)
+    graph[source].forEach((child) => {
+      inDegree[child] -= 1
+      if (inDegree[child] === 0) {
+        delete inDegree[child]
+        queue.push(child)
+      }
+    })
+  }
+
+  if (sortedList.length < vertices) {
+    // cycle occurs in the graph -- some nodes can never be sources
+    return []
+  }
+  return sortedList
+}

@@ -135,3 +135,50 @@ export const findKLargestPairs_r1 = (
   }
   return result
 }
+
+//--- r2 ---//
+//
+// Imaging all pairs are put in a matrix -- rows being indices in nums1, cols being indices in nums2;
+// The pair with the largest sum should be the top-left corner;
+// The next pair should either be its right or bottom neighbor;
+// Thus, best-first-search using a maxHeap of size 2;
+// Each time, we pulled out the root of the heap being the cur max pair; push in its right and bottom
+//  neighbors into the heap;
+// Keep counting until we've got the k-th largest pair;
+// Note that when pushing in neighbors, we could encounter duplicate neighbors;
+// We can use a matrix memo[idx1][idx2] === true to see if the pair has already been pushed
+//
+// Time: O(klog2)
+// Space: O(M * N)
+
+export function findKLargestPairs_r2(
+  nums1: number[],
+  nums2: number[],
+  k: number
+): number[][] {
+  const res: number[][] = []
+  if (nums1.length === 0 || nums2.length === 0) {
+    return res
+  }
+  // [sum, idx1, idx2]
+  const maxHeap = new Heap<[number, number, number]>((a, b) => a[0] - b[0])
+  const memo = new Array(nums1.length).map(() =>
+    new Array(nums2.length).fill(false)
+  )
+  maxHeap.add([nums1[0] + nums2[0], 0, 0])
+  memo[0][0] = true
+  while (k > 0 && maxHeap.size() > 0) {
+    const [sum, idx1, idx2] = maxHeap.removeRoot()
+    res.push([nums1[idx1], nums2[idx2]])
+    if (idx1 + 1 < nums1.length && !memo[idx1 + 1][idx2]) {
+      maxHeap.add([nums1[idx1 + 1] + nums2[idx2], idx1 + 1, idx2])
+      memo[idx1 + 1][idx2] = true
+    }
+    if (idx2 + 1 < nums2.length && !memo[idx1][idx2 + 1]) {
+      maxHeap.add([nums1[idx1] + nums2[idx2 + 1], idx1, idx2 + 1])
+      memo[idx1][idx2 + 1] = true
+    }
+    k -= 1
+  }
+  return res
+}

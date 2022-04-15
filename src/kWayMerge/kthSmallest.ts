@@ -89,3 +89,38 @@ export const findKthSmallestInArray_r1 = (
   }
   return kSmallest
 }
+
+//--- r2 ---//
+//
+// The way to merge M sorted lists is by keeping M pointers pointing at the head of each
+//  list; Each time, find the min of all heads, move its pointer;
+// Note that in each iteration, we need to find the min of M numbers -- the suitable data structure
+//  would be a minHeap of size M;
+// That also solve the problem of storing the pointers, otherwise we have to store pointers in an array;
+// The process is as follow:
+// Keep a minHeap of size M; Removing the root of the heap in each iteration; update the cnt;
+// From the removed root, get the pointer, move the pointer and push in the new element to the heap;
+//
+// Time: O(klogM) -- the size of the heap is M; we need the k-th smallest, thus k iterations
+// Space: O(M)
+
+export function findKthSmallestInArray_r2(lists: number[][], k: number): number | undefined {
+  // [value, listIdx, colIdx]
+  const minHeap = new Heap<[number, number, number]>((a, b) => b[0] - a[0])
+  lists.forEach((list, listIdx) => {
+    if (list.length > 0) {
+      minHeap.add([list[0], listIdx, 0])
+    }
+  })
+
+  let res: number | undefined = undefined
+  while (minHeap.size() > 0 && k > 0) {
+    const [curMin, listIdx, colIdx] = minHeap.removeRoot()
+    res = curMin
+    if (colIdx < lists[listIdx].length) {
+      minHeap.add([lists[listIdx][colIdx + 1], listIdx, colIdx + 1])
+    }
+    k -= 1
+  }
+  return k === 0 ? res : undefined
+}

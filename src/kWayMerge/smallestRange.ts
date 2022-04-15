@@ -109,3 +109,55 @@ export const findSmallestRange_r1 = (lists: number[][]): [number, number] => {
   }
   return smallestRange as [number, number]
 }
+
+//--- r2 ---//
+//
+// The problem calls us to find the smallest range. Thus, we need a way to iterate
+//  all candidate ranges and find the smallest one;
+// There's a greedy approach to generate these candidate ranges, since the lists are sorted
+// 1. we start by getting the range from the heads -- [curMin, curMax]
+// 2. in order to find smaller range, we have no choice but to 'lift' the lower bound; we cannot
+//  'lower' the higher bound because the lists are sorted in ascending order;
+// 3. move the pointer of curMin, we get a new number
+//  update curMin and curMax -- a new range; update the smallest range so far
+// 4. if the curMin at any time is the last of its list; we can stop searching. Because in this
+//  way, we cannot shrink the bound any further;
+// NOTE that in 3, when update curMin and curMax;
+// - for curMax, we only need to compare the new number with curMax
+// - for curMin, we have to find the min among the M numbers once again; in order to draw the min
+//  in less time -- we use a minHeap of size M to save the heads of all time;
+// We can break iterating when minHeap's size is less than M
+//
+// Time: O(NlogM) - N is the total element of all lists; M is the number of lists -- the size of heap
+// Space: O(M)
+
+export function findSmallestRange_r2(lists: number[][]): [number, number] {
+  // [value, listIdx, colIdx]
+  const minHeap = new Heap<[number, number, number]>((a, b) => b[0] - a[0])
+  let curMax = Number.MIN_SAFE_INTEGER
+  lists.forEach((list, listIdx) => {
+    if (list.length > 0) {
+      minHeap.add([list[0], listIdx, 0])
+      curMax = Math.max(curMax, list[0])
+    }
+  })
+  if (minHeap.size() === 0) {
+    return [0, 0]
+  }
+  let minRangeSize = curMax - minHeap.peek()[0]
+  const res: [number, number] = [minHeap.peek[0], curMax]
+  while (minHeap.size() === lists.length) {
+    const [curMin, listIdx, colIdx] = minHeap.removeRoot()
+    if (curMax - curMin < minRangeSize) {
+      res[0] = curMin
+      res[1] = curMax
+      minRangeSize = curMax - curMin
+    }
+    if (colIdx < lists[listIdx].length) {
+      const nextNum = lists[listIdx][colIdx + 1]
+      curMax = Math.max(curMax, nextNum)
+      minHeap.add([nextNum, listIdx, colIdx + 1])
+    }
+  }
+  return res
+}

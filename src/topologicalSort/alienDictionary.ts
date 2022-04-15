@@ -75,3 +75,66 @@ export const findOrder = (words: string[]): string => {
   }
   return topoOrder.join('')
 }
+
+//--- r2 ---//
+//
+// 1. Each pair of adjacent words in the given word list gives us one rule
+//  of the dictionary; the leftmost different letters tell the rule
+// 2. We see the rules as edges in a graph, the problem becomes -- finding the topological
+//  order of the graph
+// 3. NOTE that, the rules drew from the word list can be duplicated -- a -> c and a -> c
+//  agian. That will lead to a's children [c, c], and c's inDegree === 2
+//  However, that is correct when we're building the topological rule.
+//
+// Time: O(N + M) -- N is the total number of letters; M is the total number of words given;
+//  - time for topological sort is O(V + E); here, V is N; M words can generate as much as
+//  M rules -- M edges;
+// Space: O(N + M) bounded by the graphMap
+
+export function findOrder_r1(words: string[]): string {
+  const inDegree: Record<string, number> = {}
+  const graph: Record<string, string[]> = {}
+  words.forEach((word) => {
+    for (let i = 0; i < word.length; i += 1) {
+      const letter = word[i]
+      if (graph[letter] === undefined) {
+        graph[letter] = []
+      }
+      inDegree[letter] = 0
+    }
+  })
+
+  for (let i = 0; i < words.length - 1; i += 1) {
+    const word = words[i]
+    const nextWord = words[i + 1]
+    for (let j = 0; j < Math.min(word.length, nextWord.length); j += 1) {
+      if (word[j] !== nextWord[j]) {
+        graph[word[j]].push(nextWord[j])
+        inDegree[nextWord[j]] += 1
+        break
+      }
+    }
+  }
+
+  const order: string[] = []
+  const sources: string[] = []
+  Object.entries(inDegree).forEach(([letter, inDeg]) => {
+    if (inDeg === 0) {
+      sources.push(letter)
+    }
+  })
+
+  while (sources.length > 0) {
+    const parent = sources.shift()
+    order.push(parent)
+    graph[parent].forEach((child) => {
+      inDegree[child] -= 1
+      if (inDegree[child] === 0) {
+        delete inDegree[child]
+        sources.push(child)
+      }
+    })
+  }
+
+  return order.join('')
+}

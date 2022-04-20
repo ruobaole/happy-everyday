@@ -115,3 +115,48 @@ export const canPartition_r1 = (num: number[]): boolean => {
   }
   return DP[SUM]
 }
+
+//--- r2 ---//
+//
+// First, we get the total sum of the array; then the problem becomes --
+//  if there exists a subset whose sum equals totalSum / 2;
+// Define DP[i][s] -- true if the first i items in the original array can
+//  get a subset with sum -- s;
+// To get DP[i][s], we have 2 choices:
+// 1. try including the i-1 th item if num[i - 1] <= s
+//  DP[i-1][s - num[i - 1]]
+// 2. try not including the item
+//  DP[i-1][s]
+// return case1 || case2
+// Base Case:
+// 1. DP[0][s] = s === 0
+// SPACE SAVING
+// Notice that in getting each cell, we only need to refer 2 cells --
+// - the top cell
+// - the one in the top row and to the left of the current
+// Hence, we can save space by reusing only one row -- DP[s]
+// in each row iteration, we fill in the columns in order right -> left
+//
+// Time: O(N * SUM)
+// Space: O(SUM)
+
+export function canPartition_r2(num: number[]): boolean {
+  // Assume that no negative number exists in the array
+  const totalSum = num.reduce((sum, n) => sum + n)
+  if (totalSum % 2 !== 0) {
+    return false
+  }
+  const target = totalSum / 2
+  const DP = new Array(target + 1).fill(false)
+  DP[0] = true
+  for (let i = 1; i <= num.length; i += 1) {
+    for (let s = target; s >= 0; s -= 1) {
+      // now DP[s] is actually DP[i-1][s]
+      // try including the item
+      if (!DP[s] && num[i - 1] <= s) {
+        DP[s] = DP[s - num[i - 1]]
+      }
+    }
+  }
+  return DP[target]
+}

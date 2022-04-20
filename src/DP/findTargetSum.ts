@@ -62,3 +62,21 @@ export const findTargetSubsets_r1 = (num: number[], s: number): number => {
   }
   return DP[targetSum]
 }
+
+//--- r2 ---//
+//
+// We can seperate numbers into 2 groups -- one with + signs and one with - signs;
+// Then we put a parenthesis around those with - signs; the equation becomes the
+//  difference of 2 subsets' sum
+// sum1 - sum2 = s
+// Add totalSum (sum1 + sum2) to both sides of the equation --
+//  sum1 - sum2 + sum1 + sum2 = s + totalSum
+//  => 2 * sum1 = s + totalSum
+//  => sum1 = (s + totalSum) / 2
+// the problem becomes -- finding the number of subsets whose sum is sum1
+// we can use the same solution as in countSum
+//
+// Time: O(N * S)
+// Space: O(S)
+
+export function findTargetSubsets_r2(num: number[], s: number): number { }

@@ -178,3 +178,92 @@ export const solveKnapsack_r1 = (
   }
   return DP[capacity]
 }
+
+//--- r2 ---//
+//
+// Brute Force
+// For each item, we branching between having this item in the result combination or not;
+// Define prob(i, c) - the max profit we can get from the items in the subset [i, end]
+// For each prob(i, c), we have 2 choices:
+// 1. including the i-th item if weights[i] <= c; then the profit should be
+//   profit[i] + prob(i+1, c - weights[i])
+// 2. not including the i-th item; then the profit should be
+//   prob(i+1, c)
+// prob(i, c) should be the max of the 2 choices
+// Base Case should be i >= numOfItems:
+//  return 0
+//
+// Time: O(2^N)
+// Space: O(N) -- the callstack
+
+export function solveKnapsack_r2_bruteforce(
+  profits: number[],
+  weights: number[],
+  capacity: number
+): number {
+  if (profits.length !== weights.length) {
+    return 0
+  }
+
+  function solveKnapsack_r2_bruteforceHelper(i: number, c: number): number {
+    if (i >= profits.length || c <= 0) {
+      return 0
+    }
+
+    let profit1 = 0
+    if (weights[i] <= c) {
+      profit1 =
+        profits[i] + solveKnapsack_r2_bruteforceHelper(i + 1, c - weights[i])
+    }
+    const profit2 = solveKnapsack_r2_bruteforceHelper(i + 1, c)
+    return Math.max(profit1, profit2)
+  }
+
+  return solveKnapsack_r2_bruteforceHelper(0, capacity)
+}
+
+// Bottom-up DP
+// Observing the brute-force solution, we can find out that the solving of prob(i, c)
+// involves in the solution of many subproblems, and the subproblem duplicated many times;
+// Also, we find out that the problem is uniquely identified by 2 params -- i, c
+// Hence, define DP[i][c] -- the max profit we draw from items [0, i-1], i.e. the first i items
+//  (since we're doing bottom-up)
+// To get each DP[i][c], we have 2 choices:
+// 1. including the i-th item in the final combo if c >= weights[i-1]
+//  profit[i-1] + DP[i - 1][c - weights[i-1]]
+// 2. not including the i-th item
+//  DP[i - 1][c]
+// DP[i][c] should be the max of the 2
+// Base Case:
+// - DP[0][c] for all c should be 0 -- since no items can be included
+// - DP[i][0] = weights[i - 1] === 0 ? profit[i - 1] : 0
+//
+// Time: O(N * C)
+// Space: O(N * C)
+
+export function solveKnapsack_r2(
+  profits: number[],
+  weights: number[],
+  capacity: number
+): number {
+  if (profits.length !== weights.length || profits.length === 0) {
+    return 0
+  }
+  const DP = new Array(profits.length + 1)
+    .fill(0)
+    .map(() => new Array(capacity + 1).fill(0))
+  for (let i = 0; i <= profits.length; i += 1) {
+    DP[i][0] = weights[i - 1] === 0 ? profits[i - 1] : 0
+  }
+  for (let i = 1; i <= profits.length; i += 1) {
+    for (let c = 1; c < capacity; c += 1) {
+      // case1. try including the i-1 th item
+      if (weights[i - 1] <= c) {
+        DP[i][c] = profits[i - 1] + DP[i - 1][c - weights[i - 1]]
+      }
+      // case2. try not including the i-1 th item
+      DP[i][c] = Math.max(DP[i][c], DP[i - 1][c])
+    }
+  }
+  return DP[profits.length][capacity]
+}

@@ -217,3 +217,41 @@ export const minDiffPartition_r1_DP2 = (num: number[]): number => {
   }
   return Math.abs(totalSum - sum1 - sum1)
 }
+
+//--- r2 ---//
+//
+// Observe that if we can find a subset within the array whose sum equals
+//  Math.floor(totalSum / 2), the min difference should be 0;
+// If we cannot find such subset; we should get the sum closest to the target,
+//  as the sum of subset1;
+// Now, sum of subset2 should be totalSum - sum1; and the difference should be
+//  abs(sum1 - sum2)
+// How do we find the sum closest to the target?
+// just iterate the last row of DP from right to left, the first cell that returns true
+//  gives us the sum that is closest to the target;
+//
+// Time: O(N * SUM)
+// Space: O(SUM) -- reusing only one row
+
+export function minDiffPartition_r2(num: number[]): number {
+  // Assume that no negative numbers exist in the array
+  const totalSum = num.reduce((sum, n) => sum + n)
+  const target = Math.floor(totalSum / 2)
+  const DP = new Array(target + 1).fill(false)
+  // if no items can be selected, we can get sum 0
+  DP[0] = true
+  for (let i = 1; i <= num.length; i += 1) {
+    for (let s = target; s >= 0; s -= 1) {
+      // DP[s] now is DP[i - 1][s]
+      if (!DP[s] && num[i - 1] <= s) {
+        DP[s] = DP[s - num[i - 1]]
+      }
+    }
+  }
+  let sum1 = target
+  while (sum1 > 0 && !DP[sum1]) {
+    sum1 -= 1
+  }
+  const sum2 = totalSum - sum1
+  return Math.abs(sum1 - sum2)
+}

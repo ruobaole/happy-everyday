@@ -29,3 +29,32 @@ export function minJumps(jumps: number[]): number {
   }
   return DP[jumps.length - 1]
 }
+
+//--- r1 ---//
+//
+// Define DP[i] - min number of jumps needed to reach index i
+// We need to populate the array;
+// For each cell, we regard it as the starting point, iterating through all its possible jumping steps
+// and fill in the number of jumps of the corresponding destinations; -- as if we're similating all the
+// possible jumps;
+//  DP[end] = min(DP[end], DP[start] + 1)
+// Base Case:
+// - DP[0] = 0
+//
+// Time: O(N)
+// Space: O(N)
+
+export function minJumps_r1(jumps: number[]): number {
+  if (jumps.length === 0) {
+    return 0
+  }
+  const DP = new Array(jumps.length).fill(Number.MAX_SAFE_INTEGER)
+  DP[0] = 0
+
+  for (let i = 0; i < jumps.length; i += 1) {
+    for (let end = i + 1; end < jumps.length && end <= i + jumps[i]; end += 1) {
+      DP[end] = Math.min(DP[end], DP[i] + 1)
+    }
+  }
+  return DP[jumps.length - 1]
+}

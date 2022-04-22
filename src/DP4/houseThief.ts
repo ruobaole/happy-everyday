@@ -33,3 +33,42 @@ export function findMaxSteal(wealth: number[]): number {
   }
   return cur
 }
+
+//--- r1 ---//
+//
+// Define the prob(i) as the max wealth we can get by stealing from
+//  the first i houses;
+// To get prob(i), we need to consider 2 cases --
+// 1) stealing from the i-1 th house; so that we have to skip the i-2 th house;
+//  it is equivalent of prob(i-2) + wealth[i-1]
+// 2) not stealing from the i-1 th house; the wealth should equal
+//  prob(i-1)
+// prob(i) = max(case1, case2)
+// Base Case:
+//  1) prob(0) = 0 no wealth can get if no houses
+//  2) prob(1) = wealth[0]
+// As can be seen, the deduction rule follows the fibonacci pattern; thus, we can
+//  save the space by reusing 2 constances -- prev, prevprev
+//
+// Time: O(N)
+// Space: O(1)
+
+export function findMaxSteal_r1(wealth: number[]): number {
+  if (wealth.length === 0) {
+    return 0
+  }
+  if (wealth.length === 1) {
+    return wealth[0]
+  }
+  // prob(0)
+  let prevprev = 0
+  // prob(1)
+  let prev = wealth[0]
+  let cur = prev
+  for (let i = 2; i <= wealth.length; i += 1) {
+    cur = Math.max(prevprev + wealth[i], prev)
+    prevprev = prev
+    prev = cur
+  }
+  return cur
+}

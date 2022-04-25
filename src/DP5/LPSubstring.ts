@@ -89,3 +89,47 @@ export function findLPSubstringLength_DP(st: string): number {
   }
   return maxLen
 }
+
+//--- r1 ---//
+//
+// If we define the problem -- prob(i, j) as the length of the LPSubstring
+//  within substring [i, j], the only difference from the LPS problem is that --
+// when str[i] === str[j], we cannot simply say prob(i, j) = 2 + prob(i + 1, j - 1),
+// but we have to check if prob(i+1, j-1) === j - i + 1 (the length of the substring [i+1, j-1]);
+// because it can be smaller (other chars interpolating the substring) -- in that case, we can only
+//  plus 2 if no other chars interpolating;
+// Thus, to simplify the process, we can simply define prob(i, j) as true if substring [i, j] is palindrome --
+//  then its length is natrually i - j + 1;
+// we iterate through all the possible substrings and update the global maxLen;
+// Define DP[i][j] -- true if substring [i, j] is palindrome
+// Deduction:
+// 1) if str[i] === str[j] && (DP[i+1][j-1] || the substring's length is 2)
+//  DP[i][j] = true
+//  update maxLen = max(maxLen, the substring's length)
+// 2) else - false
+// Base Case:
+//  DP[i][i] = true
+//
+// Time: O(N^2)
+// Space: O(N^2)
+
+export function findLPSubstringLength_r1(st: string): number {
+  const N = st.length
+  if (N === 0) {
+    return 0
+  }
+  const DP = new Array(N).fill(false).map(() => new Array(N).fill(false))
+  for (let i = 0; i < N; i += 1) {
+    DP[i][i] = true
+  }
+  let maxLen = 1
+  for (let i = N - 1; i >= 0; i -= 1) {
+    for (let j = i + 1; j < N; j += 1) {
+      if (st[i] === st[j] && (DP[i + 1][j - 1] || j === i + 1)) {
+        DP[i][j] = true
+        maxLen = Math.max(maxLen, j - i + 1)
+      }
+    }
+  }
+  return maxLen
+}

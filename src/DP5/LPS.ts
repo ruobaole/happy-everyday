@@ -51,7 +51,7 @@ function findLPS_bruteForceHelper(st: string, start: number, end: number) {
 //  else:
 //  max(DP[start+1][end], DP[start][end-1])
 // As can be seen, when filling the matrix, each time, only the
-//  left cell, bottom cell, and left-botton cell are needed
+//  left cell, bottom cell, and left-bottom cell are needed
 // Hence, the filling order should be bottom-up and left-right
 // Return DP[0][st.length-1] at last
 //
@@ -75,6 +75,50 @@ export function findLPS_DP(st: string): number {
     for (let end = start + 1; end < N; end += 1) {
       if (st[start] === st[end]) {
         DP[start][end] = 2 + DP[start + 1][end - 1]
+      } else {
+        DP[start][end] = Math.max(DP[start + 1][end], DP[start][end - 1])
+      }
+    }
+  }
+  return DP[0][N - 1]
+}
+
+//--- r1 ---//
+//
+// Observation: in order to find the longest subsequence, we need to permulate all
+//  all subsequence;
+//  The way to permulate subsequence is by permulating its start and end indices;
+//  Meaning that each subseq is identified using 2 params -- start, end
+// Define DP[start][end] as the length of the LPS within str[start][end]
+// Deduction:
+// 1) if str[start] === str[end]
+//  DP[start+1][end-1] + 2
+// 2) else
+//  max(DP[start+1][end], DP[start][end-1])
+// Base Case:
+//  as can be seen, we need to only fill the top-right triangle half of the matrix;
+//  since end should be larger than start
+//  DP[i][i] = 1 for all i
+// For each cell, we need its left-bottom neighbor, left neighbor and bottom neighbor;
+// Thus, the filling order of the matrix should be -- bottom -> top, left -> right
+//
+// Time: O(N^2)
+// Space: O(N^2)
+
+export function findLPS_r1(st: string): number {
+  const N = st.length
+  if (N === 0) {
+    return 0
+  }
+
+  const DP = new Array(N).fill(0).map(() => new Array(N).fill(0))
+  for (let i = 0; i < N; i += 1) {
+    DP[i][i] = 1
+  }
+  for (let start = N - 1; start >= 1; start -= 1) {
+    for (let end = start + 1; end < N; end += 1) {
+      if (st[start] === st[end]) {
+        DP[start][end] = DP[start + 1][end - 1] + 2
       } else {
         DP[start][end] = Math.max(DP[start + 1][end], DP[start][end - 1])
       }

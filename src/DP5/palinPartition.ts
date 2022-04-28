@@ -100,3 +100,55 @@ export function minPalinPartition_DP(st: string) {
   }
   return minCut[0]
 }
+
+//--- r1 ---//
+//
+// We've already known that we can get matrix DP[start][end] -- true
+//  if substring[start, end] is a palindrome;
+// Then, we need another DP, to get minCut[start] -- the min number of cuts needed for
+//  string within [start, string.length - 1]
+// We just need to iterate the DP matrix once again, bottom->up, left->right, to permulate all possible
+//  substring[start, end] and update minCut[start] at the same time.
+// We see substring[start, end] as the potential last cut --
+// We init minCut[start] as string.length-1 -- which is the largest possible number;
+// If DP[start, end] is true -- is palindrome, then it can be the last cut
+//  minCut[start] = min(minCut[start], minCut[end + 1] + 1)
+//
+// Time: O(N^2)
+// Space: O(N^2)
+
+export function minPalinPartition_r1(st: string): number {
+  if (st.length === 0) {
+    return 0
+  }
+  const N = st.length
+  const isPalin = new Array(N).fill(false).map(() => new Array(N).fill(false))
+  for (let i = 0; i < N; i += 1) {
+    isPalin[i][i] = true
+  }
+  for (let start = N - 1; start >= 0; start -= 1) {
+    for (let end = start + 1; end < N; end += 1) {
+      if (
+        st[start] === st[end] &&
+        (end === start + 1 || isPalin[start + 1][end - 1])
+      ) {
+        isPalin[start][end] = true
+      }
+    }
+  }
+
+  const minCut = new Array(N).fill(N - 1)
+  for (let start = N - 1; start >= 0; start -= 1) {
+    for (let end = start + 1; end < N; end += 1) {
+      if (isPalin[start][end]) {
+        if (end === N - 1) {
+          minCut[start] = 0
+        } else {
+          minCut[start] = Math.min(minCut[start], minCut[end + 1] + 1)
+        }
+      }
+    }
+  }
+
+  return minCut[0]
+}

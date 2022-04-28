@@ -29,3 +29,43 @@ export function minDeletion(st: string): number {
   }
   return N - DP[0][N - 1]
 }
+
+//--- r1 ---//
+// Minimum Insertions
+// 1. Get the length of the longest palindromatic subsequence -- LPS
+// 2. string.length - LPS
+// Because for those that are in the string but not in the subsequence, if they have their
+//  partner, we can make the string a palin;
+//
+// Time: O(N^2)
+// Space: O(N^2)
+
+function getLPSLength(st: string): number {
+  // st.length > 0
+  // DP[i][j] -- length of the LPS within substring[i, j]
+  const DP = new Array(st.length)
+    .fill(0)
+    .map(() => new Array(st.length).fill(0))
+
+  for (let i = 0; i < st.length; i += 1) {
+    DP[i][i] = 1
+  }
+
+  for (let i = st.length - 1; i >= 0; i -= 1) {
+    for (let j = i + 1; j < st.length; j += 1) {
+      if (st[i] === st[j]) {
+        DP[i][j] = 2 + DP[i + 1][j - 1]
+      } else {
+        DP[i][j] = Math.max(DP[i + 1][j], DP[i][j - 1])
+      }
+    }
+  }
+  return DP[0][st.length - 1]
+}
+
+export function minInsertion(st: string): number {
+  if (st.length === 0) {
+    return 0
+  }
+  return st.length - getLPSLength(st)
+}

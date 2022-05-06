@@ -67,3 +67,34 @@ export function LIS_DP(nums: number[]): number {
   }
   return maxLen
 }
+
+//--- r1 ---//
+//
+// DP[i] -- length of the longest increasing subsequence ending at index i
+// To get each DP[i], we need to iterate all possible subsequences that ends before
+//  i, and find the longest possible one; That is ---
+// Iterate j from 0 to i - 1, if nums[j] < nums[i] -- increasing:
+//  DP[i] = max(DP[i], DP[j] + 1)
+// Base Case:
+//  DP[i] = 1
+// return the global max in DP
+//
+// Time: O(N * N)
+// Space: O(N)
+
+export function LISubseq(nums: number[]): number {
+  if (nums.length === 0) {
+    return 0
+  }
+  const DP = new Array(nums.length).fill(1)
+  let maxLen = 0
+  for (let i = 1; i < nums.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      if (nums[j] < nums[i]) {
+        DP[i] = Math.max(DP[i], DP[j] + 1)
+        maxLen = Math.max(maxLen, DP[i])
+      }
+    }
+  }
+  return maxLen
+}

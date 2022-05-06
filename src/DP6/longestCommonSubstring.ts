@@ -86,3 +86,40 @@ export function longestCommonSubstring_DP(s1: string, s2: string): number {
   }
   return maxLen
 }
+
+//--- r2 ---//
+//
+// DP[i][j] - length of the longest common substring for str1 ended at index i-1
+//  str2 ended at index j-1
+// Deduction:
+//  if s1[i-1] ==== s2[j-1]:
+//  DP[i][j] = DP[i-1][j-1] + 1
+//  else:
+//  DP[i][j] = 0
+// Base Case:
+//  DP[i][j] = 0
+// as can be seen, we fill in the matrix in order -- bottom -> up, left -> right
+// we only need the cell on the upper-left each time
+// thus, we can save space by reusing one row
+//
+// Time: O(N * M)
+// Space: O(1)
+
+export function LCSubstr(s1: string, s2: string): number {
+  const N1 = s1.length
+  const N2 = s2.length
+  if (N1 === 0 || N2 === 0) {
+    return 0
+  }
+  const DP = new Array(N2 + 1).fill(0)
+  let maxLen = 0
+  for (let i = 1; i <= N1; i += 1) {
+    for (let j = 1; j <= N2; j += 1) {
+      if (s1[i - 1] === s2[j - 1]) {
+        DP[j] = 1 + DP[j - 1]
+        maxLen = Math.max(maxLen, DP[j])
+      }
+    }
+  }
+  return maxLen
+}

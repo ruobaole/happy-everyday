@@ -46,3 +46,51 @@ export function minDeletionsAndInsertions(
   minInser = N2 - c
   return [minDel, minInser]
 }
+
+//--- r1 ---//
+//
+// 1. find the length of the longest common subsequence of s1 and s2 -- say the c
+// 2. delete all chars in s1 that is not in LCSubseq
+//  minDel = s1.length - c
+// 3. insert all chars to c that is in s2 but not in c
+//  minInsert = s2.length - c
+// when finding c, we need to refer to DP[i-1][j-1], DP[i-1][j] and DP[i][j-1]
+// the way to save space is by reusing 2 rows, one as the curRow, the other as the nextRow
+// thisI = i % 2
+// lastI = (i - 1) % 2
+//
+// Time: O(N * M)
+// Space: O(M)
+
+function findLCSubseq(s1: string, s2: string): number {
+  const N1 = s1.length
+  const N2 = s2.length
+  if (N1 === 0 || N2 === 0) {
+    return 0
+  }
+  const DP = [new Array(N2).fill(0), new Array(N2).fill(0)]
+  let thisI = 1
+  let lastI = 0
+  let maxLen = 0
+  for (let i = 1; i <= N1; i += 1) {
+    for (let j = 1; j <= N2; j += 1) {
+      thisI = i % 2
+      lastI = (i - 1) % 2
+      if (s1[i - 1] === s2[j - 1]) {
+        DP[thisI][j] = DP[lastI][j - 1] + 1
+      } else {
+        DP[thisI][j] = Math.max(DP[lastI][j], DP[thisI][j - 1])
+      }
+      maxLen = Math.max(maxLen, DP[thisI][j])
+    }
+  }
+  return maxLen
+}
+
+export function minDeletionsAndInsertions_r1(
+  s1: string,
+  s2: string
+): [number, number] {
+  const c = findLCSubseq(s1, s2)
+  return [s1.length - c, s2.length - c]
+}

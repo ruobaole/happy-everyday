@@ -76,3 +76,45 @@ export function cntSPM_DP(str: string, pat: string): number {
   }
   return DP[N][M]
 }
+
+//--- r1 ---//
+//
+// DP[i][j] -- number of pattern match for the first i chars in string and the first j
+//  chars in pat;
+// Deduction:
+// each DP[i][j] is made up of 2 parts --
+// 1) if the 2 chars matched, the count is at least DP[i-1][j-1]
+// 2) moreover, we can always ignore one char from the string
+//  DP[i-1][j]
+// add the 2 cases
+// Base Case:
+//  DP[0][j] = 0 -- no string cannot match with any pattern
+//  DP[i][0] = 1 -- an empty pattern can match with any strings
+// Return DP[N][M]
+//
+// Time: O(N * M)
+// Space: O(N * M) -- although can be reduced to O(M) by reusing 2 rows
+
+export function cntSPM(str: string, pat: string): number {
+  const N = str.length
+  const M = pat.length
+  if (M === 0) {
+    return 1
+  }
+  if (N === 0) {
+    return 0
+  }
+  const DP = new Array(N + 1).fill(0).map(() => new Array(M + 1).fill(0))
+  for (let i = 0; i <= N; i += 1) {
+    DP[i][0] = 1
+  }
+  for (let i = 1; i <= N; i += 1) {
+    for (let j = 1; j <= M; j += 1) {
+      if (str[i - 1] === pat[j - 1]) {
+        DP[i][j] += DP[i - 1][j - 1]
+      }
+      DP[i][j] += DP[i - 1][j]
+    }
+  }
+  return DP[N][M]
+}

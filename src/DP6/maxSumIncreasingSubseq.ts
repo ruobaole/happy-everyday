@@ -31,3 +31,35 @@ export function maxSumIncreasingSubseq(nums: number[]): number {
   }
   return maxSum
 }
+
+//--- r1 ---//
+//
+// The solution follows the same strategy as the LIS. The only difference is that
+//  this time, we compare on the sums, not the lengths of the sequence.
+// DP[i] - the max sum of the subsequence ending at index i
+// Base Case:
+//  DP[i] = nums[i]
+// Deduction:
+//  loop j from 0 to i-1, if nums[j] < nums[i] && DP[i] < DP[j] + nums[i]
+//  update DP[i]
+// return the global max of DP
+//
+// Time: O(N * N)
+// Space: O(N)
+
+export function maxSumIncreasingSubseq_r1(nums: number[]): number {
+  if (nums.length === 0) {
+    return 0
+  }
+  const DP = [...nums]
+  let maxSum = 0
+  for (let i = 1; i < nums.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      if (nums[j] < nums[i] && DP[j] + nums[i] > DP[i]) {
+        DP[i] = DP[j] + nums[i]
+        maxSum = Math.max(maxSum, DP[i])
+      }
+    }
+  }
+  return maxSum
+}

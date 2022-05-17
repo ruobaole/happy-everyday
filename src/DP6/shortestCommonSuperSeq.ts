@@ -91,3 +91,49 @@ export function findLenSCS_DP(s1: string, s2: string): number {
   }
   return DP[len1][len2]
 }
+
+//--- r1 ---//
+//
+// DP[i][j] - the length of the shortest common super sequence for s1's
+//  first i chars and s2's first j chars
+// Deduction:
+//  1. if the 2 chars matched -- only one more char
+//  DP[i][j] = DP[i-1][j-1] + 1
+//  2. else
+//  DP[i][j] = min(DP[i-1][j], DP[i][j-1]) + 1
+// Base Case:
+//  (when the other string is of zero length)
+//  DP[0][j] = j
+//  DP[i][0] = i
+//
+// Time: O(N * M)
+// Space: O(N * M) -- although can be reduced to O(N)
+
+export function findLenSCS(s1: string, s2: string): number {
+  const N1 = s1.length
+  const N2 = s2.length
+  if (N1 === 0) {
+    return N2
+  }
+  if (N2 === 0) {
+    return N1
+  }
+  const DP = new Array(N1 + 1).fill(0).map(() => new Array(N2 + 1).fill(0))
+  for (let i = 0; i <= N1; i += 1) {
+    DP[i][0] = i
+  }
+  for (let j = 0; j <= N2; j += 1) {
+    DP[0][j] = j
+  }
+
+  for (let i = 1; i <= N1; i += 1) {
+    for (let j = 1; j <= N2; j += 1) {
+      if (s1[i - 1] === s2[j - 1]) {
+        DP[i][j] = DP[i - 1][j - 1] + 1
+      } else {
+        DP[i][j] = Math.min(DP[i - 1][j], DP[i][j - 1]) + 1
+      }
+    }
+  }
+  return DP[N1][N2]
+}
